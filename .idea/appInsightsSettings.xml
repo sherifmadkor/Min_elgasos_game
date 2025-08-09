@@ -22,10 +22,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.sherifmadkor.minelgasos" />
+                  <option name="mobileSdkAppId" value="1:877515674049:android:9452c3b8b6263f13599f40" />
+                  <option name="projectId" value="min-el-gasos" />
+                  <option name="projectNumber" value="877515674049" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

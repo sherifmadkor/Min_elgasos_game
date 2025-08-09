@@ -60,7 +60,6 @@ class _FirstScreenState extends State<FirstScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Wrapped with BackgroundContainer
     return BackgroundContainer(
       child: SafeArea(
         bottom: false,
@@ -81,9 +80,16 @@ class _FirstScreenState extends State<FirstScreen> {
                       ),
                     ),
                     CoolButton(
-                      text: 'ابدأ اللعب',
-                      icon: Icons.play_arrow_rounded,
+                      text: 'لعب محلي',
+                      icon: Icons.people_rounded,
                       onPressed: () => Navigator.pushNamed(context, '/second'),
+                    ),
+                    const SizedBox(height: 20),
+                    // New button for online play
+                    CoolButton(
+                      text: 'لعب أونلاين',
+                      icon: Icons.wifi_rounded,
+                      onPressed: () => _showOnlineTermsDialog(context),
                     ),
                     const SizedBox(height: 20),
                     CoolButton(
@@ -111,7 +117,7 @@ class _FirstScreenState extends State<FirstScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: Text(
-                        'اللعبه دي مفيهاش اونلاين عشان الغرض منها التجمع الجميل دا❤️',
+                        'اللعبه دي بقت اونلاين عشان نفضل مع بعض طول الوقت❤️',
                         textAlign: TextAlign.center,
                         style: AppTheme.textTheme.bodyMedium,
                       ),
@@ -131,6 +137,81 @@ class _FirstScreenState extends State<FirstScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showOnlineTermsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppTheme.surfaceColor,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Center(
+            child: Text(
+              'أحكام وشروط اللعب أونلاين',
+              style: AppTheme.textTheme.headlineMedium?.copyWith(fontSize: 22),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(
+                  'أهلاً بك في مجتمع "مين الجاسوس" أونلاين! قبل الانضمام، يرجى الموافقة على الشروط التالية:',
+                  style: AppTheme.textTheme.bodyLarge,
+                  textAlign: TextAlign.right,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  '1. إنشاء الحساب: ستحتاج إلى إنشاء حساب لحفظ بياناتك الخاصة باللعبة.',
+                  style: AppTheme.textTheme.bodyMedium,
+                  textAlign: TextAlign.right,
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  '2. الخصوصية: بياناتك لا تُستخدم إلا في نطاق اللعبة فقط. اللاعبون الآخرون لا يمكنهم رؤية إلا اسمك الذي تختاره بنفسك.',
+                  style: AppTheme.textTheme.bodyMedium,
+                  textAlign: TextAlign.right,
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  '3. آداب السلوك: اللعبة تتضمن خاصية الدردشة. يجب الالتزام بالآداب والأخلاق العامة في كل الأوقات. أي إساءة قد تؤدي إلى حظر حسابك بشكل نهائي من اللعب.',
+                  style: AppTheme.textTheme.bodyMedium,
+                  textAlign: TextAlign.right,
+                ),
+                const SizedBox(height: 20),
+                Center(
+                  child: Text(
+                    'بالموافقة، أنت توافق على هذه الشروط.',
+                    style: AppTheme.textTheme.bodyLarge?.copyWith(
+                      color: AppTheme.accentColor,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                'إلغاء',
+                style: AppTheme.textTheme.labelLarge?.copyWith(color: AppTheme.textSecondaryColor),
+              ),
+            ),
+            CoolButton(
+              text: 'موافق',
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.pushNamed(context, '/create_account');
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

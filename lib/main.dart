@@ -2,22 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:min_elgasos_game/app_theme.dart'; // Import the new theme file
+import 'package:min_elgasos_game/screens/online_lobby_screen.dart';
 import 'slide_transition.dart';
 import 'screens/first_screen.dart';
 import 'screens/second_screen.dart';
 import 'screens/instructions_screen.dart';
 import 'screens/privacy_policy_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'screens/create_account_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize Mobile Ads on Android/iOS only
+  // Initialize Firebase (make sure firebase_options.dart is generated)
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   if (!kIsWeb) {
     await MobileAds.instance.initialize();
   }
 
   runApp(const MyGameApp());
 }
+
 
 class MyGameApp extends StatelessWidget {
   const MyGameApp({super.key});
@@ -26,7 +33,6 @@ class MyGameApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      // Apply the new global theme
       theme: AppTheme.themeData,
       initialRoute: '/',
       onGenerateRoute: (settings) {
@@ -39,8 +45,13 @@ class MyGameApp extends StatelessWidget {
             return createSlideRoute(const InstructionsScreen());
           case '/privacy':
             return createSlideRoute(const PrivacyPolicyScreen());
+          case '/create_account':
+          // New route for account creation
+            return createSlideRoute(const CreateAccountScreen());
+          case '/online':
+          // Placeholder for the online lobby
+            return createSlideRoute(const OnlineLobbyScreen());
           default:
-          // It's good practice to have a fallback route
             return createSlideRoute(const FirstScreen());
         }
       },

@@ -7,9 +7,9 @@
         <compositeConfiguration>
           <compositeBuild compositeDefinitionSource="SCRIPT">
             <builds>
-              <build path="D:/Scripts/flutter/packages/flutter_tools/gradle" name="gradle">
+              <build path="$PROJECT_DIR$/../../../../flutter/packages/flutter_tools/gradle" name="gradle">
                 <projects>
-                  <project path="D:/Scripts/flutter/packages/flutter_tools/gradle" />
+                  <project path="$PROJECT_DIR$/../../../../flutter/packages/flutter_tools/gradle" />
                 </projects>
               </build>
             </builds>
@@ -23,12 +23,15 @@
             <option value="$PROJECT_DIR$/android" />
             <option value="$PROJECT_DIR$/android/app" />
             <option value="$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/audioplayers_android-5.2.1/android" />
+            <option value="$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/cloud_firestore-4.17.5/android" />
+            <option value="$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_auth-4.16.0/android" />
+            <option value="$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_core-2.32.0/android" />
             <option value="$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_native_splash-2.4.6/android" />
             <option value="$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/google_mobile_ads-6.0.0/android" />
             <option value="$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider_android-2.2.17/android" />
             <option value="$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/shared_preferences_android-2.4.10/android" />
             <option value="$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/webview_flutter_android-4.7.0/android" />
-            <option value="D:/Scripts/flutter/packages/flutter_tools/gradle" />
+            <option value="$PROJECT_DIR$/../../../../flutter/packages/flutter_tools/gradle" />
           </set>
         </option>
       </GradleProjectSettings>

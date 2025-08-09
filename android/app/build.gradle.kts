@@ -3,9 +3,9 @@ import java.io.FileInputStream
 
 plugins {
     id("com.android.application")
+    id("com.google.gms.google-services") // START: FlutterFire Configuration
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
-    id("dev.flutter.flutter-gradle-plugin")
+    id("dev.flutter.flutter-gradle-plugin") // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
 }
 
 val keystoreProperties = Properties()
@@ -57,6 +57,14 @@ android {
 
 dependencies {
     implementation("androidx.core:core-ktx:1.16.0")
+
+    // START: Firebase Core Dependencies
+    // Use the Firebase Bill of Materials (BOM) to manage library versions
+    implementation(platform("com.google.firebase:firebase-bom:32.4.0"))
+    // Declare the Firebase libraries you are using
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    // END: Firebase Core Dependencies
 }
 
 flutter {

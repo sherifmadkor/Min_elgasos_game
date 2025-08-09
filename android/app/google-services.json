@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "877515674049",
+    "project_id": "min-el-gasos",
+    "storage_bucket": "min-el-gasos.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:877515674049:android:9452c3b8b6263f13599f40",
+        "android_client_info": {
+          "package_name": "com.sherifmadkor.minelgasos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_x9sbbhcEU3nlVmseig-La_VhpSokNCo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

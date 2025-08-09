@@ -35,6 +35,9 @@ dependencies:
   webview_flutter: ^4.4.1
   shared_preferences: ^2.0.15
   google_fonts: ^6.2.1 # For custom fonts
+  firebase_core: ^2.24.2
+  firebase_auth: ^4.15.2
+  cloud_firestore: ^4.13.4
 
 
   # The following adds the Cupertino Icons font to your application.
