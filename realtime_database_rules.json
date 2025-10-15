@@ -1,0 +1,28 @@
+{
+  "rules": {
+    "gameRooms": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$roomId": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        ".indexOn": ["type", "status", "createdAt", "roomCode"],
+        "players": {
+          ".write": "auth != null",
+          "$playerId": {
+            ".write": "auth != null && auth.uid == $playerId"
+          }
+        },
+        "playerVotes": {
+          ".write": "auth != null",
+          "$voterId": {
+            ".write": "auth != null && auth.uid == $voterId"
+          }
+        },
+        "messages": {
+          ".write": "auth != null"
+        }
+      }
+    }
+  }
+}

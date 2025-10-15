@@ -55,6 +55,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '877515674049',
     projectId: 'min-el-gasos',
     storageBucket: 'min-el-gasos.firebasestorage.app',
+    databaseURL: 'https://min-el-gasos-default-rtdb.europe-west1.firebasedatabase.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -64,5 +65,6 @@ class DefaultFirebaseOptions {
     projectId: 'min-el-gasos',
     storageBucket: 'min-el-gasos.firebasestorage.app',
     iosBundleId: 'com.max.minElgasosGame',
+    databaseURL: 'https://min-el-gasos-default-rtdb.europe-west1.firebasedatabase.app',
   );
 }
