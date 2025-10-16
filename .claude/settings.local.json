@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter analyze:*)",
+      "Bash(flutter build:*)",
+      "Bash(mkdir:*)",
+      "Bash(rmdir:*)",
+      "Bash(rm:*)",
+      "Bash(flutter pub:*)",
+      "Bash(flutter gen-l10n:*)",
+      "Bash(flutter clean:*)",
+      "Bash(find:*)",
+      "Bash(flutter:*)",
+      "Bash(grep:*)",
+      "Bash(timeout:*)",
+      "WebSearch",
+      "Bash(sed:*)",
+      "Bash(nc localhost 62b477)",
+      "Bash(git add:*)",
+      "Read(//c/Users/sheri/AndroidStudioProjects/casino_elal3ab/**)",
+      "Bash(dart analyze:*)",
+      "Bash(cat:*)",
+      "Bash(dart compile kernel:*)",
+      "Bash(nc:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

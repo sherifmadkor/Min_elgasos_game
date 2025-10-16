@@ -7,8 +7,10 @@ import 'package:min_elgasos_game/app_theme.dart';
 import 'package:min_elgasos_game/screens/role_reveal_screen.dart';
 import 'package:min_elgasos_game/screens/game_timer_screen.dart';
 import 'package:min_elgasos_game/slide_transition.dart';
-import 'package:min_elgasos_game/widgets/background_container.dart';
+import 'package:min_elgasos_game/screens/background_container.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../l10n/app_localizations.dart';
+import '../services/language_service.dart';
 
 class SecondScreen extends StatefulWidget {
   const SecondScreen({super.key});
@@ -134,6 +136,10 @@ class _SecondScreenState extends State<SecondScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final languageService = LanguageService.of(context);
+    final isRtl = languageService.isRtl;
+    
     if (_selectedCategory == null) {
       return const BackgroundContainer(
         child: Center(
@@ -143,11 +149,12 @@ class _SecondScreenState extends State<SecondScreen> {
     }
 
     return BackgroundContainer(
-      child: Scaffold(
-        body: SafeArea(
+      child: Directionality(
+        textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+        child: SafeArea(
           bottom: false,
           child: Column(
-            children: [
+              children: [
               if (_isBannerLoaded && _bannerAd != null)
                 Container(
                   color: Colors.black,
@@ -156,17 +163,19 @@ class _SecondScreenState extends State<SecondScreen> {
                   child: AdWidget(ad: _bannerAd!),
                 ),
               Padding(
-                padding: const EdgeInsets.only(top: 8.0, left: 16.0),
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: TextButton.icon(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                    label: const Text('رجوع'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppTheme.textSecondaryColor,
+                padding: const EdgeInsets.only(top: 8.0, left: 16.0, right: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton.icon(
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                      label: Text(l10n.back),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppTheme.textSecondaryColor,
+                      ),
+                      onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false),
                     ),
-                    onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false),
-                  ),
+                  ],
                 ),
               ),
               Expanded(
@@ -178,7 +187,7 @@ class _SecondScreenState extends State<SecondScreen> {
                       const SizedBox(height: 20),
                       _buildSection(
                         emoji: '👥',
-                        label: 'إحنا عددنا',
+                        label: l10n.howManyPlayers,
                         value: players,
                         onAdd: () => _updatePlayerCount(1),
                         onRemove: () => _updatePlayerCount(-1),
@@ -186,7 +195,7 @@ class _SecondScreenState extends State<SecondScreen> {
                       const SizedBox(height: 20),
                       _buildSection(
                         emoji: '🥷',
-                        label: 'كام جاسوس',
+                        label: l10n.howManySpies,
                         value: spies,
                         onAdd: () => _updateSpyCount(1),
                         onRemove: () => _updateSpyCount(-1),
@@ -194,7 +203,7 @@ class _SecondScreenState extends State<SecondScreen> {
                       const SizedBox(height: 20),
                       _buildSection(
                         emoji: '⏱️',
-                        label: 'كام دقيقة',
+                        label: l10n.howManyMinutes,
                         value: minutes,
                         onAdd: () {
                           setState(() => minutes++);
@@ -208,11 +217,11 @@ class _SecondScreenState extends State<SecondScreen> {
                         },
                       ),
                       const SizedBox(height: 30),
-                      _buildCategorySelector(),
+                      _buildCategorySelector(l10n),
                       const SizedBox(height: 30),
                       CoolButton(
                         icon: Icons.play_circle_fill_rounded,
-                        text: 'ابدأ اللعب',
+                        text: l10n.startPlaying,
                         onPressed: _startGame,
                       ),
                       const SizedBox(height: 20),
@@ -269,11 +278,11 @@ class _SecondScreenState extends State<SecondScreen> {
     showNextPlayer();
   }
 
-  Widget _buildCategorySelector() {
+  Widget _buildCategorySelector(AppLocalizations l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text('اختر نوع اللعبة:', style: AppTheme.textTheme.bodyLarge),
+        Text(l10n.chooseGameType, style: AppTheme.textTheme.bodyLarge),
         const SizedBox(width: 12),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),

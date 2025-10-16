@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:min_elgasos_game/app_theme.dart';
 import 'package:min_elgasos_game/screens/instructions_screen.dart';
-import 'package:min_elgasos_game/widgets/background_container.dart';
+import 'package:min_elgasos_game/screens/background_container.dart';
 import '../slide_transition.dart';
+import '../l10n/app_localizations.dart';
 
 class RoleRevealScreen extends StatefulWidget {
   final int currentPlayer;
@@ -91,19 +92,26 @@ class _RoleRevealScreenState extends State<RoleRevealScreen> {
     )..load();
   }
 
-  void _confirmExit() => _showConfirmationDialog(
-    title: 'خروج من اللعب',
-    content: 'هل أنت متأكد أنّك تريد إنهاء اللعبة؟',
-    onConfirm: () => Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false),
-  );
+  void _confirmExit() {
+    final l10n = AppLocalizations.of(context)!;
+    _showConfirmationDialog(
+      title: l10n.exitGame,
+      content: l10n.areYouSureEndGame,
+      onConfirm: () => Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false),
+    );
+  }
 
-  void _confirmRestart() => _showConfirmationDialog(
-    title: 'إعادة الدور',
-    content: 'هل تريد إعادة الدور من البداية؟',
-    onConfirm: () => Navigator.pushNamedAndRemoveUntil(context, '/second', (route) => false),
-  );
+  void _confirmRestart() {
+    final l10n = AppLocalizations.of(context)!;
+    _showConfirmationDialog(
+      title: l10n.restartRound,
+      content: l10n.areYouSureRestartRound,
+      onConfirm: () => Navigator.pushNamedAndRemoveUntil(context, '/second', (route) => false),
+    );
+  }
 
   void _showConfirmationDialog({required String title, required String content, required VoidCallback onConfirm}) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -111,13 +119,13 @@ class _RoleRevealScreenState extends State<RoleRevealScreen> {
         title: Text(title, style: AppTheme.textTheme.headlineMedium?.copyWith(fontSize: 22)),
         content: Text(content, style: AppTheme.textTheme.bodyLarge),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text('لا', style: TextStyle(color: AppTheme.textSecondaryColor))),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.no, style: TextStyle(color: AppTheme.textSecondaryColor))),
           TextButton(
               onPressed: () {
                 Navigator.pop(context);
                 onConfirm();
               },
-              child: Text('نعم', style: TextStyle(color: AppTheme.accentColor))),
+              child: Text(l10n.yes, style: TextStyle(color: AppTheme.accentColor))),
         ],
       ),
     );
@@ -141,7 +149,7 @@ class _RoleRevealScreenState extends State<RoleRevealScreen> {
               child: IconButton(
                 icon: const Icon(Icons.home_rounded),
                 onPressed: _confirmExit,
-                tooltip: 'الخروج للرئيسية',
+                tooltip: AppLocalizations.of(context)!.exitToHome,
               ),
             ),
             actions: [
@@ -152,12 +160,12 @@ class _RoleRevealScreenState extends State<RoleRevealScreen> {
                     IconButton(
                       icon: const Icon(Icons.help_outline_rounded),
                       onPressed: () => Navigator.push(context, createSlideRoute(const InstructionsScreen())),
-                      tooltip: 'التعليمات',
+                      tooltip: AppLocalizations.of(context)!.gameRules,
                     ),
                     IconButton(
                       icon: const Icon(Icons.refresh_rounded),
                       onPressed: _confirmRestart,
-                      tooltip: 'إعادة الدور',
+                      tooltip: AppLocalizations.of(context)!.restartRound,
                     ),
                   ],
                 ),
@@ -181,12 +189,12 @@ class _RoleRevealScreenState extends State<RoleRevealScreen> {
                             child: const Icon(Icons.person_outline_rounded, size: 60, color: AppTheme.accentColor),
                           ),
                           const SizedBox(height: 20),
-                          Text('اللّاعب رقم ${widget.currentPlayer}', style: AppTheme.textTheme.headlineMedium),
+                          Text('${AppLocalizations.of(context)!.playerNumber} ${widget.currentPlayer}', style: AppTheme.textTheme.headlineMedium),
                           const SizedBox(height: 40),
                           if (!showRole)
                             CoolButton(
                               onPressed: () => setState(() => showRole = true),
-                              text: 'اضغط لمعرفة دورك',
+                              text: AppLocalizations.of(context)!.tapToKnowRole,
                               icon: Icons.touch_app_rounded,
                             )
                           else
@@ -212,7 +220,8 @@ class _RoleRevealScreenState extends State<RoleRevealScreen> {
   }
 
   Widget _buildRoleInfo() {
-    final roleLabel = widget.isSpy ? 'أنت الجاسوس!' : 'أنت محقق!';
+    final l10n = AppLocalizations.of(context)!;
+    final roleLabel = widget.isSpy ? l10n.youAreSpy : l10n.youAreDetective;
     final roleIcon = widget.isSpy
         ? ShaderMask(
       shaderCallback: (Rect bounds) {
@@ -245,7 +254,7 @@ class _RoleRevealScreenState extends State<RoleRevealScreen> {
         const SizedBox(height: 40),
         CoolButton(
           onPressed: widget.onNext,
-          text: widget.currentPlayer == widget.totalPlayers ? 'ابدأ اللعب' : 'اللّاعب اللي بعده',
+          text: widget.currentPlayer == widget.totalPlayers ? AppLocalizations.of(context)!.startGame : AppLocalizations.of(context)!.nextPlayer,
           icon: Icons.arrow_forward_ios_rounded,
         ),
       ],

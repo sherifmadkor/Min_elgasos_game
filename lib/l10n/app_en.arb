@@ -1,0 +1,629 @@
+{
+  "@@locale": "en",
+  "appTitle": "Min el Gasos",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  
+  "playOffline": "Play Offline",
+  "@playOffline": {
+    "description": "Button text for offline play"
+  },
+  
+  "playOnline": "Play Online",
+  "@playOnline": {
+    "description": "Button text for online play"
+  },
+  
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings menu option"
+  },
+  
+  "profile": "Profile",
+  "@profile": {
+    "description": "Profile screen title"
+  },
+  
+  "noUserLoggedIn": "No user logged in",
+  "@noUserLoggedIn": {
+    "description": "Message when user is not authenticated"
+  },
+  
+  "noUserData": "No user data found",
+  "@noUserData": {
+    "description": "Message when user data doesn't exist"
+  },
+  
+  "changeName": "Change Name",
+  "@changeName": {
+    "description": "Dialog title for changing name"
+  },
+  
+  "enterNewName": "Enter new name",
+  "@enterNewName": {
+    "description": "Hint text for name input"
+  },
+  
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button text"
+  },
+  
+  "save": "Save",
+  "@save": {
+    "description": "Save button text"
+  },
+  
+  "back": "Back",
+  "@back": {
+    "description": "Back button text"
+  },
+  
+  "gamesPlayed": "Games Played",
+  "@gamesPlayed": {
+    "description": "Statistics label for games played"
+  },
+  
+  "wins": "Wins",
+  "@wins": {
+    "description": "Statistics label for wins"
+  },
+  
+  "spyWins": "Spy Wins",
+  "@spyWins": {
+    "description": "Statistics label for spy wins"
+  },
+  
+  "detectiveWins": "Detective Wins",
+  "@detectiveWins": {
+    "description": "Statistics label for detective wins"
+  },
+  
+  "xpPoints": "{xp} XP Points",
+  "@xpPoints": {
+    "description": "Experience points text",
+    "placeholders": {
+      "xp": {
+        "type": "int",
+        "example": "150"
+      }
+    }
+  },
+  
+  "login": "Login",
+  "@login": {
+    "description": "Login button text"
+  },
+  
+  "loginAsGuest": "Login as Guest",
+  "@loginAsGuest": {
+    "description": "Guest login button text"
+  },
+  
+  "logout": "Logout",
+  "@logout": {
+    "description": "Logout button text"
+  },
+  
+  "createRoom": "Create Room",
+  "@createRoom": {
+    "description": "Create room button text"
+  },
+  
+  "joinRoom": "Join Room",
+  "@joinRoom": {
+    "description": "Join room button text"
+  },
+  
+  "friendsList": "Friends List",
+  "@friendsList": {
+    "description": "Friends list button text"
+  },
+  
+  "email": "Email",
+  "@email": {
+    "description": "Email field label"
+  },
+  
+  "password": "Password",
+  "@password": {
+    "description": "Password field label"
+  },
+  
+  "confirmPassword": "Confirm Password",
+  "@confirmPassword": {
+    "description": "Confirm password field label"
+  },
+  
+  "displayName": "Display Name",
+  "@displayName": {
+    "description": "Display name field label"
+  },
+  
+  "createAccount": "Create Account",
+  "@createAccount": {
+    "description": "Create account button text"
+  },
+  
+  "alreadyHaveAccount": "Already have an account?",
+  "@alreadyHaveAccount": {
+    "description": "Link to login screen"
+  },
+  
+  "dontHaveAccount": "Don't have an account?",
+  "@dontHaveAccount": {
+    "description": "Link to signup screen"
+  },
+  
+  "signUp": "Sign Up",
+  "@signUp": {
+    "description": "Sign up button text"
+  },
+  
+  "language": "Language",
+  "@language": {
+    "description": "Language setting option"
+  },
+  
+  "arabic": "العربية",
+  "@arabic": {
+    "description": "Arabic language option"
+  },
+  
+  "english": "English",
+  "@english": {
+    "description": "English language option"
+  },
+  
+  "rankIron": "Iron",
+  "@rankIron": {
+    "description": "Iron rank name"
+  },
+  
+  "rankBronze": "Bronze",
+  "@rankBronze": {
+    "description": "Bronze rank name"
+  },
+  
+  "rankSilver": "Silver",
+  "@rankSilver": {
+    "description": "Silver rank name"
+  },
+  
+  "rankGold": "Gold",
+  "@rankGold": {
+    "description": "Gold rank name"
+  },
+  
+  "rankPlatinum": "Platinum",
+  "@rankPlatinum": {
+    "description": "Platinum rank name"
+  },
+  
+  "rankEmerald": "Emerald",
+  "@rankEmerald": {
+    "description": "Emerald rank name"
+  },
+  
+  "rankDiamond": "Diamond",
+  "@rankDiamond": {
+    "description": "Diamond rank name"
+  },
+  
+  "rankMaster": "Master",
+  "@rankMaster": {
+    "description": "Master rank name"
+  },
+  
+  "rankGrandmaster": "Grandmaster",
+  "@rankGrandmaster": {
+    "description": "Grandmaster rank name"
+  },
+  
+  "rankChallenger": "Challenger",
+  "@rankChallenger": {
+    "description": "Challenger rank name"
+  },
+  
+  "playLocal": "Play Local",
+  "@playLocal": {
+    "description": "Local play button text"
+  },
+  
+  "gameInstructions": "Game Instructions",
+  "@gameInstructions": {
+    "description": "Game instructions button text"
+  },
+  
+  "privacyPolicy": "Privacy Policy",
+  "@privacyPolicy": {
+    "description": "Privacy policy link text"
+  },
+  
+  "onlineMessage": "This game is now online so we can stay together all the time❤️",
+  "@onlineMessage": {
+    "description": "Message about online features"
+  },
+  
+  "onlineTermsTitle": "Online Play Terms and Conditions",
+  "@onlineTermsTitle": {
+    "description": "Title for online terms dialog"
+  },
+  
+  "agree": "Agree",
+  "@agree": {
+    "description": "Agree button text"
+  },
+
+  "createAccountTitle": "Create Account",
+  "@createAccountTitle": {
+    "description": "Create account screen title"
+  },
+
+  "accountCreatedSuccess": "Account created successfully ✅",
+  "@accountCreatedSuccess": {
+    "description": "Account creation success message"
+  },
+
+  "chooseAvatar": "Choose Avatar",
+  "@chooseAvatar": {
+    "description": "Choose avatar button text"
+  },
+
+  "name": "Name",
+  "@name": {
+    "description": "Name field label"
+  },
+
+  "nameHint": "Enter your name here",
+  "@nameHint": {
+    "description": "Name field hint text"
+  },
+
+  "emailHint": "example@mail.com",
+  "@emailHint": {
+    "description": "Email field hint text"
+  },
+
+  "passwordHint": "•••••••",
+  "@passwordHint": {
+    "description": "Password field hint text"
+  },
+
+  "show": "Show",
+  "@show": {
+    "description": "Show password tooltip"
+  },
+
+  "hide": "Hide",
+  "@hide": {
+    "description": "Hide password tooltip"
+  },
+
+  "alreadyHaveAccountLogin": "Already have an account? Login",
+  "@alreadyHaveAccountLogin": {
+    "description": "Link to login from create account"
+  },
+
+  "pleaseEnterName": "Please enter name",
+  "@pleaseEnterName": {
+    "description": "Name validation error"
+  },
+
+  "nameTooShort": "Name is too short",
+  "@nameTooShort": {
+    "description": "Name length validation error"
+  },
+
+  "pleaseEnterEmail": "Please enter email",
+  "@pleaseEnterEmail": {
+    "description": "Email validation error"
+  },
+
+  "invalidEmail": "Invalid email",
+  "@invalidEmail": {
+    "description": "Email format validation error"
+  },
+
+  "pleaseEnterPassword": "Please enter password",
+  "@pleaseEnterPassword": {
+    "description": "Password validation error"
+  },
+
+  "passwordTooShort": "Password must be at least 6 characters",
+  "@passwordTooShort": {
+    "description": "Password length validation error"
+  },
+
+  "loginTitle": "Login",
+  "@loginTitle": {
+    "description": "Login screen title"
+  },
+
+  "createNewAccount": "Create New Account",
+  "@createNewAccount": {
+    "description": "Create new account button text"
+  },
+
+  "back": "Back",
+  "@back": {
+    "description": "Back button text"
+  },
+
+  "howManyPlayers": "How Many Players",
+  "@howManyPlayers": {
+    "description": "Player count section label"
+  },
+
+  "howManySpies": "How Many Spies",
+  "@howManySpies": {
+    "description": "Spy count section label"
+  },
+
+  "howManyMinutes": "How Many Minutes",
+  "@howManyMinutes": {
+    "description": "Time duration section label"
+  },
+
+  "chooseGameType": "Choose Game Type:",
+  "@chooseGameType": {
+    "description": "Category selector label"
+  },
+
+  "startPlaying": "Start Playing",
+  "@startPlaying": {
+    "description": "Start game button text"
+  },
+
+  "chooseAvatarTitle": "Choose Avatar",
+  "@chooseAvatarTitle": {
+    "description": "Avatar picker screen title"
+  },
+
+  "free": "Free",
+  "@free": {
+    "description": "Free avatars section title"
+  },
+
+  "comingSoonPremium": "Coming Soon (Premium)",
+  "@comingSoonPremium": {
+    "description": "Premium avatars section title"
+  },
+
+  "premiumAvatarsMessage": "These avatars will be available soon 🔒",
+  "@premiumAvatarsMessage": {
+    "description": "Premium avatars locked message"
+  },
+
+  "playOnlineTitle": "Play Online",
+  "@playOnlineTitle": {
+    "description": "Online entry screen title"
+  },
+
+  "onlineIntroMessage": "To start playing online, please login or create a new account",
+  "@onlineIntroMessage": {
+    "description": "Online entry screen introduction message"
+  },
+
+  "gameRules": "Game Rules",
+  "@gameRules": {
+    "description": "Game rules screen title"
+  },
+
+  "privacyPolicyTitle": "Privacy Policy",
+  "@privacyPolicyTitle": {
+    "description": "Privacy policy screen title"
+  },
+
+  "areYouSure": "Are you sure?",
+  "@areYouSure": {
+    "description": "Confirmation dialog title"
+  },
+
+  "no": "No",
+  "@no": {
+    "description": "No button text"
+  },
+
+  "yes": "Yes",
+  "@yes": {
+    "description": "Yes button text"
+  },
+
+  "gameResult": "Game Result",
+  "@gameResult": {
+    "description": "Game result dialog title"
+  },
+
+  "exitGame": "Exit Game",
+  "@exitGame": {
+    "description": "Exit game dialog title"
+  },
+
+  "exitToHome": "Exit to Home",
+  "@exitToHome": {
+    "description": "Exit to home tooltip"
+  },
+
+  "newGame": "New Game",
+  "@newGame": {
+    "description": "New game button text"
+  },
+
+  "startTimer": "Start Timer",
+  "@startTimer": {
+    "description": "Start timer button text"
+  },
+
+  "result": "Result",
+  "@result": {
+    "description": "Result button text"
+  },
+
+  "startVoting": "Start Voting",
+  "@startVoting": {
+    "description": "Start voting button text"
+  },
+
+  "theWordWas": "The word was:",
+  "@theWordWas": {
+    "description": "Game result word label"
+  },
+
+  "timeSpent": "Time spent",
+  "@timeSpent": {
+    "description": "Time spent label"
+  },
+
+  "playerNumber": "Player number",
+  "@playerNumber": {
+    "description": "Player number label"
+  },
+
+  "spy": "Spy",
+  "@spy": {
+    "description": "Spy role label"
+  },
+
+  "detective": "Detective",
+  "@detective": {
+    "description": "Detective role label"
+  },
+
+  "areYouSureEndGame": "Are you sure you want to end the game?",
+  "@areYouSureEndGame": {
+    "description": "Confirmation to end game"
+  },
+
+  "restartRound": "Restart Round",
+  "@restartRound": {
+    "description": "Restart round button text"
+  },
+
+  "areYouSureRestartRound": "Do you want to restart the round from the beginning?",
+  "@areYouSureRestartRound": {
+    "description": "Confirmation to restart round"
+  },
+
+  "tapToKnowRole": "Tap to know your role",
+  "@tapToKnowRole": {
+    "description": "Button to reveal player role"
+  },
+
+  "youAreSpy": "You are the spy!",
+  "@youAreSpy": {
+    "description": "Spy role reveal text"
+  },
+
+  "youAreDetective": "You are a detective!",
+  "@youAreDetective": {
+    "description": "Detective role reveal text"
+  },
+
+  "startGame": "Start Game",
+  "@startGame": {
+    "description": "Start game button text"
+  },
+
+  "nextPlayer": "Next Player",
+  "@nextPlayer": {
+    "description": "Next player button text"
+  },
+
+  "spyInstructions": "Try to figure out the {category} without them suspecting you!",
+  "@spyInstructions": {
+    "description": "Instructions for spy role",
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+
+  "theFoodIs": "The food is",
+  "@theFoodIs": {
+    "description": "Food category reveal prefix"
+  },
+
+  "thePlaceIs": "The place is",
+  "@thePlaceIs": {
+    "description": "Place category reveal prefix"
+  },
+
+  "thePlayerIs": "The player is",
+  "@thePlayerIs": {
+    "description": "Player category reveal prefix"
+  },
+
+  "gameDescription": "🔸 Social game for 3 or more players 🔥\n🔸 Everyone knows the location or food or player etc... except the spy! 👀\n",
+  "@gameDescription": {
+    "description": "Game description in instructions"
+  },
+
+  "spyObjective": "🎯 Spy Objective:",
+  "@spyObjective": {
+    "description": "Spy objective section title"
+  },
+
+  "spyObjectiveDetails": "- Pretend you know and don't get discovered.\n- Listen to questions and answers.\n- Try to figure out the location or food.\n- But ❗ you can't say the location or food until the round ends.\n- If you guess correctly → spies win.\n- If you're wrong:\n  ❌ You lose a point.\n  ✅ Everyone else gets a point.",
+  "@spyObjectiveDetails": {
+    "description": "Detailed spy objective explanation"
+  },
+
+  "detectiveObjective": "🧠 Other Players' Objective:",
+  "@detectiveObjective": {
+    "description": "Detective objective section title"
+  },
+
+  "detectiveObjectiveDetails": "- Ask each other yes or no questions only.\n- Try to discover who the spy is from their answers.\n- After the round ends, discuss and agree on who the spy is. If you can't agree, whoever guessed correctly gets a point along with the spy.",
+  "@detectiveObjectiveDetails": {
+    "description": "Detailed detective objective explanation"
+  },
+
+  "privacyPolicyContent": "❗ Privacy Policy for \"Min el Gasos\" App\n\nWe care about your privacy and want you to understand how we handle your data:\n\n1. 🔒 We do not collect any personal data.\n2. 📵 The app works completely offline.\n3. 👤 We do not ask you to log in or enter any information.\n4. 🙫 We do not use cookies.\n5. 🧠 Your activity within the app is not tracked.\n\n📌 Using the app means you agree to this policy.\nIf you do not agree, please do not use the app.\n\nThank you 🙏",
+  "@privacyPolicyContent": {
+    "description": "Full privacy policy content"
+  },
+
+  "gameSession": "Game Session",
+  "playersInSession": "Players in Session", 
+  "votingPhase": "Voting Phase",
+  "round": "Round",
+  "sessionStats": "Session Stats",
+  "playerRoles": "Player Roles",
+  "spies": "SPIES",
+  "detectives": "DETECTIVES",
+  "location": "Location",
+  "gameInformation": "Game Information",
+  "timerDuration": "Timer Duration",
+  "totalPlayers": "Total Players",
+  "minutes": "minutes",
+  "votes": "votes",
+  "voted": "voted",
+  "playersInGame": "Players in Game",
+  "voteForSpy": "Vote for who you think is the SPY!",
+  "votingInstructions": "Choose carefully - the player with the most votes will be revealed as spy or innocent.",
+  "selectPlayerToVote": "Select a player to vote for:",
+  "submitVote": "Submit Vote",
+  "voteSubmitted": "Vote Submitted!",
+  "youVotedFor": "You voted for:",
+  "waitingForOthers": "Waiting for other players to vote...",
+  "votingStatus": "Voting Status",
+  "showResults": "Show Results",
+  "votingResults": "Voting Results",
+  "mostVotedPlayer": "Most Voted Player:",
+  "revealRules": "Reveal Rules",
+  "startRound": "Start Round",
+  "nextRound": "Next Round",
+  "endSession": "End Session",
+  "gameInProgress": "Game in Progress...",
+  "timerPausedByHost": "Timer Paused by Host",
+  "waitForHostTimer": "Wait for the host to control the timer",
+  "voteSubmittedSuccess": "Vote submitted successfully!",
+  "errorSubmittingVote": "Error submitting vote",
+  "errorShowingResults": "Error showing results",
+  "host": "Host",
+  "startRoundTimer": "Start Round Timer",
+  "hostControls": "Host Controls"
+}

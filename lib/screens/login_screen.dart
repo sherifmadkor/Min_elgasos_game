@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'auth_repository.dart';
 import 'background_container.dart';
+import '../l10n/app_localizations.dart';
+import '../services/language_service.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({super.key, this.nextRoute});
+
+  /// Where to go after successful login. If null, defaults to '/mainMenu'.
+  final String? nextRoute;
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
+
+  /// Helper to build from onGenerateRoute with arguments
+  static Widget fromRouteSettings(RouteSettings settings) {
+    final arg = settings.arguments;
+    final next = (arg is String && arg.isNotEmpty) ? arg : null;
+    return LoginScreen(nextRoute: next);
+  }
 }
 
 class _LoginScreenState extends State<LoginScreen> {
@@ -26,29 +36,22 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _onLogin() async {
-    FocusScope.of(context).unfocus();
+  Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
-
     setState(() {
       _loading = true;
       _error = null;
     });
 
-    final repo = AuthRepository();
     try {
-      await repo.signIn(
+      await AuthRepository().signIn(
         email: _emailCtrl.text.trim(),
         password: _passwordCtrl.text,
       );
-
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم تسجيل الدخول بنجاح ✅')),
-      );
 
-      // Go to your main menu / online lobby list
-      Navigator.of(context).pushReplacementNamed('/mainMenu');
+      final next = widget.nextRoute ?? '/mainMenu';
+      Navigator.pushNamedAndRemoveUntil(context, next, (_) => false);
     } catch (e) {
       if (!mounted) return;
       setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
@@ -57,31 +60,12 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> _onForgot() async {
-    final email = _emailCtrl.text.trim();
-    if (email.isEmpty || !email.contains('@')) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('أدخل بريدًا إلكترونيًا صالحًا أولاً')),
-      );
-      return;
-    }
-    try {
-      await AuthRepository().sendPasswordResetEmail(email);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم إرسال رابط استعادة كلمة المرور إلى بريدك')),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
+    final languageService = LanguageService.of(context);
+    final isRtl = languageService.isRtl;
     final inputBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
       borderSide: BorderSide(color: Colors.white.withOpacity(0.18)),
@@ -89,9 +73,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('تسجيل الدخول'),
+        title: Text(l10n.loginTitle),
         centerTitle: true,
-        systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       body: BackgroundContainer(
         child: SafeArea(
@@ -101,7 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Directionality(
-                  textDirection: TextDirection.rtl,
+                  textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
                   child: Form(
                     key: _formKey,
                     child: ListView(
@@ -127,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
 
-                        // Email (force LTR)
+                        // Email (LTR typing)
                         Directionality(
                           textDirection: TextDirection.ltr,
                           child: TextFormField(
@@ -136,8 +119,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             textInputAction: TextInputAction.next,
                             textAlign: TextAlign.left,
                             decoration: InputDecoration(
-                              labelText: 'Email',
-                              hintText: 'example@mail.com',
+                              labelText: l10n.email,
+                              hintText: l10n.emailHint,
                               border: inputBorder,
                               enabledBorder: inputBorder,
                               focusedBorder: inputBorder.copyWith(
@@ -146,9 +129,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             validator: (v) {
                               final val = (v ?? '').trim();
-                              if (val.isEmpty) return 'من فضلك أدخل البريد الإلكتروني';
+                              if (val.isEmpty) return l10n.pleaseEnterEmail;
                               if (!val.contains('@') || !val.contains('.')) {
-                                return 'بريد إلكتروني غير صالح';
+                                return l10n.invalidEmail;
                               }
                               return null;
                             },
@@ -156,18 +139,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 12),
 
-                        // Password (force LTR)
+                        // Password (LTR typing)
                         Directionality(
                           textDirection: TextDirection.ltr,
                           child: TextFormField(
                             controller: _passwordCtrl,
                             obscureText: _obscure,
                             textInputAction: TextInputAction.done,
-                            onFieldSubmitted: (_) => _loading ? null : _onLogin(),
+                            onFieldSubmitted: (_) => _loading ? null : _login(),
                             textAlign: TextAlign.left,
                             decoration: InputDecoration(
-                              labelText: 'Password',
-                              hintText: '•••••••',
+                              labelText: l10n.password,
+                              hintText: l10n.passwordHint,
                               border: inputBorder,
                               enabledBorder: inputBorder,
                               focusedBorder: inputBorder.copyWith(
@@ -180,46 +163,41 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             validator: (v) {
                               final val = v ?? '';
-                              if (val.isEmpty) return 'من فضلك أدخل كلمة المرور';
+                              if (val.isEmpty) return l10n.pleaseEnterPassword;
                               if (val.length < 6) {
-                                return 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+                                return l10n.passwordTooShort;
                               }
                               return null;
                             },
                           ),
                         ),
-                        const SizedBox(height: 8),
-
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: TextButton(
-                            onPressed: _loading ? null : _onForgot,
-                            child: const Text('نسيت كلمة المرور؟'),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 20),
 
                         SizedBox(
                           width: double.infinity,
                           height: 52,
                           child: FilledButton(
-                            onPressed: _loading ? null : _onLogin,
+                            onPressed: _loading ? null : _login,
                             child: _loading
                                 ? const SizedBox(
-                              width: 22,
-                              height: 22,
+                              width: 22, height: 22,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                                : const Text('تسجيل الدخول'),
+                                : Text(l10n.login),
                           ),
                         ),
                         const SizedBox(height: 12),
 
+                        // Go to Create Account (use pop result to continue to /online)
                         TextButton(
-                          onPressed: _loading
-                              ? null
-                              : () => Navigator.of(context).pushNamed('/createAccount'),
-                          child: const Text('لا تملك حساباً؟ إنشاء حساب'),
+                          onPressed: _loading ? null : () async {
+                            final result = await Navigator.pushNamed(context, '/create_account');
+                            if (mounted && result == true) {
+                              final next = widget.nextRoute ?? '/mainMenu';
+                              Navigator.pushNamedAndRemoveUntil(context, next, (_) => false);
+                            }
+                          },
+                          child: Text(l10n.createNewAccount),
                         ),
                       ],
                     ),

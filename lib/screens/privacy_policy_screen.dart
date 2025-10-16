@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:min_elgasos_game/app_theme.dart';
+import '../l10n/app_localizations.dart';
+import '../services/language_service.dart';
 
 class PrivacyPolicyScreen extends StatefulWidget {
   const PrivacyPolicyScreen({super.key});
@@ -43,11 +45,15 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final languageService = LanguageService.of(context);
+    final isRtl = languageService.isRtl;
+    
     return Directionality(
-      textDirection: TextDirection.rtl,
+      textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('سياسة الخصوصية'),
+          title: Text(l10n.privacyPolicyTitle),
           centerTitle: true,
         ),
         body: Container(
@@ -60,25 +66,9 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(24.0),
                     child: Text(
-                      '''
-❗ سياسة الخصوصية لتطبيق "من الجاسوس"
-
-نحن نهتم بخصوصيتك، ونرغب في أن تفهم كيف نتعامل مع بياناتك:
-
-1. 🔒 لا نقوم بجمع أي بيانات شخصية.
-2. 📵 التطبيق يعمل بالكامل بدون إنترنت.
-3. 👤 لا نطلب منك تسجيل الدخول أو إدخال أي معلومات.
-4. 🚫 لا نستخدم ملفات تعريف الارتباط (Cookies).
-5. 🧠 لا يتم تتبع نشاطك داخل التطبيق.
-
-📌 استخدامك للتطبيق يعني موافقتك على هذه السياسة. 
-إذا كنت لا توافق، يرجى عدم استخدام التطبيق.
-
-شكرًا لك 🙏
-''',
-                      // Using the new text theme
+                      l10n.privacyPolicyContent,
                       style: AppTheme.textTheme.bodyMedium,
-                      textAlign: TextAlign.right,
+                      textAlign: isRtl ? TextAlign.right : TextAlign.left,
                     ),
                   ),
                 ),

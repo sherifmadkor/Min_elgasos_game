@@ -6,7 +6,8 @@ import 'package:min_elgasos_game/app_theme.dart';
 import 'package:min_elgasos_game/screens/instructions_screen.dart';
 import 'package:min_elgasos_game/screens/second_screen.dart';
 import 'package:min_elgasos_game/slide_transition.dart';
-import 'package:min_elgasos_game/widgets/background_container.dart';
+import 'package:min_elgasos_game/screens/background_container.dart';
+import '../l10n/app_localizations.dart';
 
 class GameTimerScreen extends StatefulWidget {
   final int minutes;
@@ -142,30 +143,34 @@ class _GameTimerScreenState extends State<GameTimerScreen> {
     });
   }
 
-  void _confirmExit() => _showConfirmationDialog(
-    title: 'خروج من اللعبة',
-    onConfirm: () => Navigator.popUntil(context, (r) => r.isFirst),
-  );
+  void _confirmExit() {
+    final l10n = AppLocalizations.of(context)!;
+    _showConfirmationDialog(
+      title: l10n.exitGame,
+      onConfirm: () => Navigator.popUntil(context, (r) => r.isFirst),
+    );
+  }
 
   void _startNewGame() {
     Navigator.pushReplacement(context, createSlideRoute(const SecondScreen()));
   }
 
   void _showConfirmationDialog({required String title, required VoidCallback onConfirm}) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppTheme.surfaceColor,
         title: Text(title, style: AppTheme.textTheme.headlineMedium?.copyWith(fontSize: 22)),
-        content: Text('هل أنت متأكد؟', style: AppTheme.textTheme.bodyLarge),
+        content: Text(l10n.areYouSure, style: AppTheme.textTheme.bodyLarge),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text('لا', style: TextStyle(color: AppTheme.textSecondaryColor))),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.no, style: TextStyle(color: AppTheme.textSecondaryColor))),
           TextButton(
               onPressed: () {
                 Navigator.pop(context);
                 onConfirm();
               },
-              child: Text('نعم', style: TextStyle(color: AppTheme.accentColor))),
+              child: Text(l10n.yes, style: TextStyle(color: AppTheme.accentColor))),
         ],
       ),
     );
@@ -173,18 +178,19 @@ class _GameTimerScreenState extends State<GameTimerScreen> {
 
   void _showResultsDialog() {
     final timeSpent = totalSeconds - remainingSeconds;
+    
 
     showDialog(
         context: context,
         builder: (_) => AlertDialog(
           backgroundColor: AppTheme.surfaceColor,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Center(child: Text("نتيجة اللعبة", style: AppTheme.textTheme.headlineMedium)),
+          title: Center(child: Text(AppLocalizations.of(context)!.gameResult, style: AppTheme.textTheme.headlineMedium)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "الكلمة كانت:",
+                AppLocalizations.of(context)!.theWordWas,
                 style: AppTheme.textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondaryColor),
               ),
               Text(
@@ -193,7 +199,7 @@ class _GameTimerScreenState extends State<GameTimerScreen> {
                 textAlign: TextAlign.center,
               ),
               const Divider(height: 25, color: AppTheme.textSecondaryColor),
-              Text("الوقت المستغرق: ${_formatTime(timeSpent)}", style: AppTheme.textTheme.bodyLarge),
+              Text("${AppLocalizations.of(context)!.timeSpent}: ${_formatTime(timeSpent)}", style: AppTheme.textTheme.bodyLarge),
               const SizedBox(height: 15),
               SizedBox(
                 height: 150,
@@ -205,8 +211,8 @@ class _GameTimerScreenState extends State<GameTimerScreen> {
                     final isSpy = widget.spyList[index];
                     return ListTile(
                       leading: Text(isSpy ? '🥷' : '🕵️', style: const TextStyle(fontSize: 24)),
-                      title: Text("اللاعب رقم ${index + 1}", style: AppTheme.textTheme.bodyLarge),
-                      trailing: Text(isSpy ? "جاسوس" : "محقق", style: AppTheme.textTheme.bodyMedium?.copyWith(color: isSpy ? Colors.redAccent : Colors.greenAccent)),
+                      title: Text("${AppLocalizations.of(context)!.playerNumber} ${index + 1}", style: AppTheme.textTheme.bodyLarge),
+                      trailing: Text(isSpy ? AppLocalizations.of(context)!.spy : AppLocalizations.of(context)!.detective, style: AppTheme.textTheme.bodyMedium?.copyWith(color: isSpy ? Colors.redAccent : Colors.greenAccent)),
                     );
                   },
                 ),
@@ -216,7 +222,7 @@ class _GameTimerScreenState extends State<GameTimerScreen> {
           actions: [
             Center(
               child: CoolButton(
-                text: 'جيم جديد',
+                text: AppLocalizations.of(context)!.newGame,
                 icon: Icons.replay_rounded,
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -227,6 +233,7 @@ class _GameTimerScreenState extends State<GameTimerScreen> {
           ],
         ));
   }
+  
 
   Future<bool> _onWillPop() async {
     _confirmExit();
@@ -249,7 +256,7 @@ class _GameTimerScreenState extends State<GameTimerScreen> {
               child: IconButton(
                 icon: const Icon(Icons.home_rounded),
                 onPressed: _confirmExit,
-                tooltip: 'الخروج للرئيسية',
+                tooltip: AppLocalizations.of(context)!.exitToHome,
               ),
             ),
             actions: [
@@ -260,12 +267,12 @@ class _GameTimerScreenState extends State<GameTimerScreen> {
                     IconButton(
                       icon: const Icon(Icons.help_outline_rounded),
                       onPressed: () => Navigator.push(context, createSlideRoute(const InstructionsScreen())),
-                      tooltip: 'التعليمات',
+                      tooltip: AppLocalizations.of(context)!.gameRules,
                     ),
                     IconButton(
-                      icon: const Icon(Icons.refresh_rounded),
-                      onPressed: _startNewGame,
-                      tooltip: 'لعبة جديدة',
+                      icon: const Icon(Icons.assessment_outlined),
+                      onPressed: _showResultsDialog,
+                      tooltip: AppLocalizations.of(context)!.result,
                     ),
                   ],
                 ),
@@ -289,7 +296,7 @@ class _GameTimerScreenState extends State<GameTimerScreen> {
                           CoolButton(
                             onPressed: _startTimer,
                             icon: Icons.play_arrow_rounded,
-                            text: 'ابدأ التايمر',
+                            text: AppLocalizations.of(context)!.startTimer,
                           ),
                         if (isRunning || isPaused) _buildPauseAndVoteButtons(),
                         if (showEndGameButtons) ...[
@@ -300,13 +307,13 @@ class _GameTimerScreenState extends State<GameTimerScreen> {
                               CoolButton(
                                 onPressed: _startNewGame,
                                 icon: Icons.replay_rounded,
-                                text: 'جيم جديد',
+                                text: AppLocalizations.of(context)!.newGame,
                               ),
                               const SizedBox(width: 20),
                               CoolButton(
                                 onPressed: _showResultsDialog,
                                 icon: Icons.assignment_turned_in_rounded,
-                                text: 'النتيجة',
+                                text: AppLocalizations.of(context)!.result,
                               ),
                             ],
                           )
@@ -370,7 +377,7 @@ class _GameTimerScreenState extends State<GameTimerScreen> {
         const SizedBox(height: 20),
         CoolButton(
           onPressed: _stopTimerCompletely,
-          text: 'ابدأ التصويت',
+          text: AppLocalizations.of(context)!.startVoting,
           icon: Icons.how_to_vote_rounded,
         ),
       ],

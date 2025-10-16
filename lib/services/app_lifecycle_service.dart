@@ -28,9 +28,9 @@ class AppLifecycleService extends WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    
+
     print('📱 App lifecycle state changed to: $state');
-    
+
     switch (state) {
       case AppLifecycleState.detached:
         _handleAppExit();
@@ -45,7 +45,8 @@ class AppLifecycleService extends WidgetsBindingObserver {
         // App is in transition state, don't take action
         break;
       case AppLifecycleState.hidden:
-        // App is hidden but still running
+        // When app is closed or killed, try to clean up
+        _handleAppExit();
         break;
     }
   }

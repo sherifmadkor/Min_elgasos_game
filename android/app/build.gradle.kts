@@ -59,11 +59,9 @@ dependencies {
     implementation("androidx.core:core-ktx:1.16.0")
 
     // START: Firebase Core Dependencies
-    // Use the Firebase Bill of Materials (BOM) to manage library versions
-    implementation(platform("com.google.firebase:firebase-bom:32.4.0"))
-    // Declare the Firebase libraries you are using
-    implementation("com.google.firebase:firebase-auth-ktx")
-    implementation("com.google.firebase:firebase-firestore-ktx")
+    // Explicitly declare Firebase dependencies with versions
+    implementation("com.google.firebase:firebase-auth-ktx:23.2.1")
+    implementation("com.google.firebase:firebase-firestore-ktx:25.1.4")
     // END: Firebase Core Dependencies
 }
 

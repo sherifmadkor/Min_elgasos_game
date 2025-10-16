@@ -1,13 +1,8 @@
-// lib/data/repositories/auth_repository.dart
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-/// Repository to encapsulate FirebaseAuth + Firestore user doc lifecycle.
-/// - Creates a users/{uid} document on sign up
-/// - Keeps a basic presence flag (isOnline) when signing in/out
-/// - Exposes auth/user streams and common actions
 class AuthRepository {
   AuthRepository({
     FirebaseAuth? auth,
@@ -24,7 +19,6 @@ class AuthRepository {
   CollectionReference<Map<String, dynamic>> get _usersRef =>
       _db.collection(_usersCollectionPath);
 
-  /// Public streams/helpers
   Stream<User?> authStateChanges() => _auth.authStateChanges();
 
   Stream<DocumentSnapshot<Map<String, dynamic>>?> currentUserDocStream() {
@@ -37,7 +31,6 @@ class AuthRepository {
   String? get currentUid => _auth.currentUser?.uid;
   User? get currentUser => _auth.currentUser;
 
-  /// Creates an auth user, updates displayName, and ensures Firestore users/{uid} exists.
   Future<UserCredential> signUp({
     required String email,
     required String password,
@@ -48,7 +41,6 @@ class AuthRepository {
         email: email.trim(),
         password: password,
       );
-
       final user = cred.user;
       if (user == null) {
         throw FirebaseAuthException(
@@ -57,26 +49,22 @@ class AuthRepository {
         );
       }
 
-      // Update profile (optional but recommended)
       await user.updateDisplayName(displayName.trim());
       await user.reload();
 
-      // Create/merge Firestore user doc
       await _ensureUserDoc(
         uid: user.uid,
         email: email.trim(),
         displayName: displayName.trim(),
-        // when created via signUp, assume they are currently online
         isOnline: true,
       );
 
       return cred;
     } on FirebaseAuthException {
-      rethrow; // Let UI show e.message
+      rethrow;
     } on FirebaseException {
       rethrow;
     } catch (e) {
-      // Wrap into a generic FirebaseException for consistency
       throw FirebaseException(
         plugin: 'cloud_firestore',
         message: 'حدث خطأ غير متوقع أثناء إنشاء الحساب: $e',
@@ -84,7 +72,6 @@ class AuthRepository {
     }
   }
 
-  /// Signs in and marks the user as online in Firestore.
   Future<UserCredential> signIn({
     required String email,
     required String password,
@@ -94,7 +81,6 @@ class AuthRepository {
         email: email.trim(),
         password: password,
       );
-
       final user = cred.user;
       if (user == null) {
         throw FirebaseAuthException(
@@ -103,14 +89,12 @@ class AuthRepository {
         );
       }
 
-      // Ensure doc exists (handles users created via other providers, etc.)
       await _ensureUserDoc(
         uid: user.uid,
         email: user.email ?? email.trim(),
         displayName: user.displayName ?? '',
         isOnline: true,
       );
-
       return cred;
     } on FirebaseAuthException {
       rethrow;
@@ -124,65 +108,43 @@ class AuthRepository {
     }
   }
 
-  /// Signs out and marks the user offline.
   Future<void> signOut() async {
     final uid = currentUid;
     try {
       if (uid != null) {
         await _usersRef.doc(uid).set(
-          {
-            'isOnline': false,
-            'updatedAt': FieldValue.serverTimestamp(),
-          },
+          {'isOnline': false, 'updatedAt': FieldValue.serverTimestamp()},
           SetOptions(merge: true),
         );
       }
     } catch (_) {
-      // Best effort: don't block signOut on a failed Firestore write
+      // best effort
     } finally {
       await _auth.signOut();
     }
   }
 
-  /// Sends a password reset email.
   Future<void> sendPasswordResetEmail(String email) {
     return _auth.sendPasswordResetEmail(email: email.trim());
   }
 
-  /// Sends email verification to the currently signed-in user.
   Future<void> sendEmailVerification() async {
     final user = _auth.currentUser;
     if (user == null) {
-      throw FirebaseAuthException(
-        code: 'no-current-user',
-        message: 'لا يوجد مستخدم حالي.',
-      );
+      throw FirebaseAuthException(code: 'no-current-user', message: 'لا يوجد مستخدم حالي.');
     }
     await user.sendEmailVerification();
   }
 
-  /// Updates display name and/or photo URL in FirebaseAuth + Firestore.
-  Future<void> updateProfile({
-    String? displayName,
-    String? photoURL,
-  }) async {
+  Future<void> updateProfile({String? displayName, String? photoURL}) async {
     final user = _auth.currentUser;
     if (user == null) {
-      throw FirebaseAuthException(
-        code: 'no-current-user',
-        message: 'لا يوجد مستخدم حالي.',
-      );
+      throw FirebaseAuthException(code: 'no-current-user', message: 'لا يوجد مستخدم حالي.');
     }
-
-    if (displayName != null) {
-      await user.updateDisplayName(displayName.trim());
-    }
-    if (photoURL != null) {
-      await user.updatePhotoURL(photoURL);
-    }
+    if (displayName != null) await user.updateDisplayName(displayName.trim());
+    if (photoURL != null) await user.updatePhotoURL(photoURL);
     await user.reload();
 
-    // Mirror to Firestore
     await _usersRef.doc(user.uid).set(
       {
         if (displayName != null) 'displayName': displayName.trim(),
@@ -193,45 +155,30 @@ class AuthRepository {
     );
   }
 
-  /// Updates arbitrary user fields in Firestore.
   Future<void> updateUserDoc(Map<String, dynamic> data, {String? uid}) async {
     final targetUid = uid ?? currentUid;
     if (targetUid == null) {
-      throw FirebaseAuthException(
-        code: 'no-current-user',
-        message: 'لا يوجد مستخدم حالي.',
-      );
+      throw FirebaseAuthException(code: 'no-current-user', message: 'لا يوجد مستخدم حالي.');
     }
     await _usersRef.doc(targetUid).set(
-      {
-        ...data,
-        'updatedAt': FieldValue.serverTimestamp(),
-      },
+      {...data, 'updatedAt': FieldValue.serverTimestamp()},
       SetOptions(merge: true),
     );
   }
 
-  /// Deletes both Firestore user doc and Auth user.
   Future<void> deleteAccount() async {
     final user = _auth.currentUser;
     if (user == null) {
-      throw FirebaseAuthException(
-        code: 'no-current-user',
-        message: 'لا يوجد مستخدم حالي.',
-      );
+      throw FirebaseAuthException(code: 'no-current-user', message: 'لا يوجد مستخدم حالي.');
     }
-
-    // Delete Firestore doc first
     try {
       await _usersRef.doc(user.uid).delete();
     } catch (_) {
-      // If it fails, continue to delete Auth account anyway.
+      // ignore
     }
-
     await user.delete();
   }
 
-  /// Gets the current Firestore user doc data (or null if not found/not signed in).
   Future<Map<String, dynamic>?> fetchCurrentUserDoc() async {
     final uid = currentUid;
     if (uid == null) return null;
@@ -240,7 +187,6 @@ class AuthRepository {
     return snap.data();
   }
 
-  /// INTERNAL: Ensure a users/{uid} doc exists with a consistent schema.
   Future<void> _ensureUserDoc({
     required String uid,
     required String email,
@@ -250,31 +196,41 @@ class AuthRepository {
     final docRef = _usersRef.doc(uid);
     final doc = await docRef.get();
 
-    // Base schema
-    final base = <String, dynamic>{
-      'uid': uid,
-      'email': email,
-      'displayName': displayName,
-      'role': 'member', // adjust to your roles
-      'tier': 'free',   // free/vip/admin etc.
-      'isOnline': isOnline,
-      'updatedAt': FieldValue.serverTimestamp(),
-    };
-
     if (doc.exists) {
-      // Merge minimal updates if doc already exists
-      await docRef.set(base, SetOptions(merge: true));
-    } else {
+      // If document exists, only update specific fields without overwriting avatar
       await docRef.set({
-        ...base,
+        'uid': uid,
+        'email': email,
+        'displayName': displayName,
+        'isOnline': isOnline,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } else {
+      // Only set defaults for new users
+      await docRef.set({
+        'uid': uid,
+        'email': email,
+        'displayName': displayName,
+        'avatarEmoji': '🕵️‍♂️',
+        'role': 'member',
+        'tier': 'free',
+        'rank': 'Iron',
+        'xp': 0,
+        'stats': {
+          'gamesPlayed': 0,
+          'wins': 0,
+          'losses': 0,
+          'spyWins': 0,
+          'detectiveWins': 0,
+        },
+        'isOnline': isOnline,
         'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
       });
     }
   }
 }
 
-/// Simple Rx switchMap without importing rxdart.
-/// You can remove this if you already use rxdart's .switchMap.
 extension _SwitchMapExt<T> on Stream<T> {
   Stream<R> switchMap<R>(Stream<R> Function(T value) mapper) {
     StreamController<R>? controller;
@@ -289,24 +245,19 @@ extension _SwitchMapExt<T> on Stream<T> {
       );
     }
 
-    void onDone() {
-      controller?.close();
-    }
+    void onDone() => controller?.close();
 
     void onListen() {
       parentSub = this.listen(onData,
           onError: controller!.addError, onDone: onDone, cancelOnError: false);
     }
 
-    void onCancel() async {
+    Future<void> onCancel() async {
       await childSub?.cancel();
       await parentSub?.cancel();
     }
 
-    controller = StreamController<R>(
-      onListen: onListen,
-      onCancel: onCancel,
-    );
+    controller = StreamController<R>(onListen: onListen, onCancel: onCancel);
     return controller!.stream;
   }
 }

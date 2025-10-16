@@ -401,11 +401,8 @@ class _RulesRevealScreenState extends State<RulesRevealScreen> {
 
   Future<void> _startGameTimer() async {
     try {
-      // Update room status to start the game timer
-      await _roomService.updateRoom(widget.gameRoom.id, {
-        'status': RoomStatus.inGame.name,
-        'startedAt': FieldValue.serverTimestamp(),
-      });
+      // Update room phase to start the game timer
+      await _roomService.setGamePhase(widget.gameRoom.id, 'game');
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

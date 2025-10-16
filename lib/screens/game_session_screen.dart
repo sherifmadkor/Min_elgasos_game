@@ -6,6 +6,7 @@ import '../l10n/localizations_extension.dart';
 import '../models/room_models.dart';
 import '../services/realtime_room_service.dart';
 import '../services/language_service.dart';
+import '../services/app_lifecycle_service.dart';
 import '../widgets/rank_emblem_png.dart';
 
 class GameSessionScreen extends StatefulWidget {
@@ -25,9 +26,21 @@ class GameSessionScreen extends StatefulWidget {
 class _GameSessionScreenState extends State<GameSessionScreen> {
   final _roomService = RealtimeRoomService();
   bool _hasNavigated = false;
-  
+
   bool get _isHost => widget.currentUserId == widget.gameRoom.hostId;
-  
+
+  @override
+  void initState() {
+    super.initState();
+    AppLifecycleService().setCurrentRoom(widget.gameRoom.id);
+  }
+
+  @override
+  void dispose() {
+    AppLifecycleService().setCurrentRoom(null);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -48,14 +61,14 @@ class _GameSessionScreenState extends State<GameSessionScreen> {
               final room = snapshot.data ?? widget.gameRoom;
               
               // Handle status transitions
-              if (room.status == RoomStatus.inGame && !_hasNavigated) {
+              if (room.status == RoomStatus.rulesRevealed && !_hasNavigated) {
                 _hasNavigated = true;
-                // Navigate to timer screen
+                // Navigate to rules reveal screen
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   if (mounted) {
                     Navigator.pushReplacementNamed(
                       context,
-                      '/multiplayer_game_timer',
+                      '/rules_reveal',
                       arguments: {
                         'gameRoom': room,
                         'currentUserId': widget.currentUserId,
@@ -247,6 +260,80 @@ class _GameSessionScreenState extends State<GameSessionScreen> {
                       
                       const SizedBox(height: 32),
                       
+                      // Pre-Reveal Section (waiting for host to reveal roles)
+                      if (room.status == RoomStatus.starting) ...[
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: AppTheme.surfaceColor,
+                            border: Border.all(color: AppTheme.accentColor, width: 2),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.visibility,
+                                size: 60,
+                                color: AppTheme.accentColor,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Game Ready!',
+                                style: AppTheme.textTheme.headlineLarge?.copyWith(
+                                  color: AppTheme.accentColor,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                _isHost 
+                                    ? 'Click below to reveal roles to all players'
+                                    : 'Waiting for host to reveal player roles...',
+                                style: AppTheme.textTheme.bodyLarge?.copyWith(
+                                  color: AppTheme.textSecondaryColor,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              if (_isHost) ...[
+                                const SizedBox(height: 20),
+                                ElevatedButton(
+                                  onPressed: _revealRoles,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppTheme.accentColor,
+                                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(25),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.visibility, color: Colors.white),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Reveal Roles',
+                                        style: AppTheme.textTheme.titleMedium?.copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ] else ...[
+                                const SizedBox(height: 20),
+                                const CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppTheme.accentColor,
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                      
                       // Rules Reveal Section
                       if (room.status == RoomStatus.rulesRevealed) ...[
                         Container(
@@ -316,33 +403,7 @@ class _GameSessionScreenState extends State<GameSessionScreen> {
                       
                       // Host Controls
                       if (_isHost) ...[
-                        if (room.status == RoomStatus.starting) ...[
-                          // Reveal Rules Button
-                          ElevatedButton(
-                            onPressed: _revealRules,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.orange,
-                              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.visibility, color: Colors.white),
-                                const SizedBox(width: 8),
-                                Text(
-                                  l10n.revealRules,
-                                  style: AppTheme.textTheme.bodyLarge?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ] else if (room.status == RoomStatus.rulesRevealed) ...[
+                        if (room.status == RoomStatus.rulesRevealed) ...[
                           // Start Round Button
                           ElevatedButton(
                             onPressed: _startRound,
@@ -369,34 +430,6 @@ class _GameSessionScreenState extends State<GameSessionScreen> {
                             ),
                           ),
                         ],
-                      ] else ...[
-                        // Player Waiting Messages
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppTheme.surfaceColor,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppTheme.textSecondaryColor),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppTheme.accentColor,
-                              ),
-                              const SizedBox(width: 16),
-                              Text(
-                                room.status == RoomStatus.starting
-                                    ? (isRtl ? 'في انتظار المضيف لإظهار القواعد...' : 'Waiting for host to reveal rules...')
-                                    : (isRtl ? 'في انتظار المضيف لبدء الجولة...' : 'Waiting for host to start round...'),
-                                style: AppTheme.textTheme.bodyLarge?.copyWith(
-                                  color: AppTheme.textSecondaryColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
                       ],
                     ],
                   ),
@@ -440,11 +473,9 @@ class _GameSessionScreenState extends State<GameSessionScreen> {
     return PlayerRole.detective; // Default to detective if not found
   }
 
-  Future<void> _revealRules() async {
+  Future<void> _revealRoles() async {
     try {
-      await _roomService.updateRoom(widget.gameRoom.id, {
-        'status': RoomStatus.rulesRevealed.name,
-      });
+      await _roomService.revealRoles(widget.gameRoom.id);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -473,4 +504,5 @@ class _GameSessionScreenState extends State<GameSessionScreen> {
       }
     }
   }
+
 }

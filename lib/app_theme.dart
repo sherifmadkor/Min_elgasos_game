@@ -124,9 +124,17 @@ class CoolButton extends StatelessWidget {
           children: [
             if (icon != null) ...[
               Icon(icon, color: Colors.black),
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
             ],
-            Text(text, style: AppTheme.textTheme.labelLarge),
+            Flexible(
+              child: Text(
+                text, 
+                style: AppTheme.textTheme.labelLarge,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         ),
       ),

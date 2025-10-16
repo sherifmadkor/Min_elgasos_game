@@ -1,0 +1,127 @@
+// Enhanced Firestore Security Rules for Min el Gasos Game
+// Copy these rules to your Firebase Console > Firestore Database > Rules
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function validateRoomData() {
+      return request.resource.data.keys().hasAll(['roomName', 'type', 'gameSettings', 'hostId']) &&
+             request.resource.data.roomName is string &&
+             request.resource.data.roomName.size() > 0 &&
+             request.resource.data.roomName.size() <= 50 &&
+             request.resource.data.type in ['public', 'private'] &&
+             request.resource.data.gameSettings.playerCount >= 3 &&
+             request.resource.data.gameSettings.playerCount <= 10 &&
+             request.resource.data.gameSettings.spyCount >= 1 &&
+             request.resource.data.gameSettings.spyCount < request.resource.data.gameSettings.playerCount;
+    }
+    
+    function validateUserData() {
+      return request.resource.data.keys().hasAll(['displayName']) &&
+             request.resource.data.displayName is string &&
+             request.resource.data.displayName.size() >= 2 &&
+             request.resource.data.displayName.size() <= 30 &&
+             (!('xp' in request.resource.data) || request.resource.data.xp == resource.data.xp);
+    }
+    
+    function rateLimitCheck() {
+      // Check if user created a room in the last 30 seconds
+      return !exists(/databases/$(database)/documents/rateLimits/$(request.auth.uid)) ||
+             resource.data.lastRoomCreation < request.time - duration.value(30, 's');
+    }
+    
+    // User documents
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId) && validateUserData();
+      allow update: if isOwner(userId) && validateUserData();
+      allow delete: if false; // Users cannot delete their accounts via client
+      
+      // User's game history subcollection
+      match /gameHistory/{historyId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId);
+        allow update, delete: if false; // History is immutable
+      }
+    }
+    
+    // Game rooms collection
+    match /gameRooms/{roomId} {
+      allow read: if isAuthenticated();
+      
+      // Room creation with validation
+      allow create: if isAuthenticated() && 
+                      validateRoomData() &&
+                      request.auth.uid == request.resource.data.hostId &&
+                      request.resource.data.createdAt == request.time;
+                      
+      // Room updates (joining, leaving, starting game)
+      allow update: if isAuthenticated() && (
+        // Host can update most fields
+        (resource.data.hostId == request.auth.uid) ||
+        // Players can join/leave room
+        (request.resource.data.players != resource.data.players) ||
+        // Players can toggle ready status
+        (request.resource.data.players.diff(resource.data.players).affectedKeys().hasOnly(['isReady']))
+      );
+      
+      // Only allow deletion by host or system
+      allow delete: if isAuthenticated() && resource.data.hostId == request.auth.uid;
+      
+      // Messages subcollection
+      match /messages/{messageId} {
+        allow read: if isAuthenticated();
+        
+        // Message creation with validation
+        allow create: if isAuthenticated() &&
+                        request.resource.data.senderId == request.auth.uid &&
+                        request.resource.data.message is string &&
+                        request.resource.data.message.size() > 0 &&
+                        request.resource.data.message.size() <= 500 &&
+                        request.resource.data.timestamp == request.time;
+                        
+        allow update, delete: if false; // Messages are immutable
+      }
+    }
+    
+    // Rate limiting collection (server-managed)
+    match /rateLimits/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if false; // Only server can write
+    }
+    
+    // Test collection for debugging (REMOVE IN PRODUCTION)
+    match /test/{document=**} {
+      allow read, write: if isAuthenticated() && 
+                           request.auth.token.email == 'admin@minelgasos.com'; // Replace with your admin email
+    }
+    
+    // Leaderboard cache (read-only for clients)
+    match /leaderboard/{document=**} {
+      allow read: if true; // Public leaderboard
+      allow write: if false; // Only server can update
+    }
+    
+    // System statistics (read-only)
+    match /stats/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Only server can update
+    }
+    
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

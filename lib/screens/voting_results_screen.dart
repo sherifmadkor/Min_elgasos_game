@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:min_elgasos_game/app_theme.dart';
 import 'package:min_elgasos_game/screens/background_container.dart';
 import '../l10n/app_localizations.dart';
@@ -8,6 +7,7 @@ import '../models/room_models.dart';
 import '../services/realtime_room_service.dart';
 import '../services/language_service.dart';
 import '../services/game_stats_service.dart';
+import '../services/app_lifecycle_service.dart';
 import '../widgets/rank_emblem_png.dart';
 
 class VotingResultsScreen extends StatefulWidget {
@@ -37,7 +37,14 @@ class _VotingResultsScreenState extends State<VotingResultsScreen> {
   @override
   void initState() {
     super.initState();
+    AppLifecycleService().setCurrentRoom(widget.gameRoom.id);
     _calculateVoteResults();
+  }
+
+  @override
+  void dispose() {
+    AppLifecycleService().setCurrentRoom(null);
+    super.dispose();
   }
 
   void _calculateVoteResults() {
@@ -442,6 +449,20 @@ class _VotingResultsScreenState extends State<VotingResultsScreen> {
                         return const Center(child: CircularProgressIndicator());
                       }
                       
+                      // Navigate to main menu when session ends or room is deleted
+                      if (room.status == RoomStatus.finished || snapshot.data == null) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (mounted) {
+                            Navigator.pushNamedAndRemoveUntil(
+                              context,
+                              '/',
+                              (route) => false,
+                            );
+                          }
+                        });
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      
                       return Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -540,48 +561,60 @@ class _VotingResultsScreenState extends State<VotingResultsScreen> {
                   // Host Controls
                   if (_isHost) ...[
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        ElevatedButton(
-                          onPressed: _startNextRound,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.accentColor,
-                            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.skip_next, color: Colors.white),
-                              const SizedBox(height: 4),
-                              Text(
-                                l10n.nextRound,
-                                style: TextStyle(color: Colors.white, fontSize: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _startNextRound,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.accentColor,
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25),
                               ),
-                            ],
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.skip_next, color: Colors.white),
+                                const SizedBox(height: 4),
+                                Flexible(
+                                  child: Text(
+                                    l10n.nextRound,
+                                    style: TextStyle(color: Colors.white, fontSize: 10),
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        ElevatedButton(
-                          onPressed: _endGameSession,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.stop, color: Colors.white),
-                              const SizedBox(height: 4),
-                              Text(
-                                l10n.endSession,
-                                style: TextStyle(color: Colors.white, fontSize: 12),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _endGameSession,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25),
                               ),
-                            ],
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.stop, color: Colors.white),
+                                const SizedBox(height: 4),
+                                Flexible(
+                                  child: Text(
+                                    l10n.endSession,
+                                    style: TextStyle(color: Colors.white, fontSize: 10),
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
@@ -602,10 +635,13 @@ class _VotingResultsScreenState extends State<VotingResultsScreen> {
                             color: AppTheme.accentColor,
                           ),
                           const SizedBox(width: 16),
-                          Text(
-                            isRtl ? 'في انتظار المضيف لبدء الجولة التالية...' : 'Waiting for host to start next round...',
-                            style: AppTheme.textTheme.bodyLarge?.copyWith(
-                              color: AppTheme.textSecondaryColor,
+                          Expanded(
+                            child: Text(
+                              isRtl ? 'في انتظار المضيف...' : 'Waiting for host...',
+                              style: AppTheme.textTheme.bodyLarge?.copyWith(
+                                color: AppTheme.textSecondaryColor,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
                           ),
                         ],
@@ -645,12 +681,12 @@ class _VotingResultsScreenState extends State<VotingResultsScreen> {
         await _updateSessionStats();
       }
       
-      // Start a new game round with new word and roles
-      final success = await _roomService.startGame(widget.gameRoom.id);
-      
-      if (!success) {
-        throw Exception('Failed to start new round');
-      }
+      // Reset the room to starting phase for next round
+      await _roomService.updateRoom(widget.gameRoom.id, {
+        'currentPhase': 'waitingForReveal',
+        'status': 'starting',
+      });
+      await _roomService.resetVotes(widget.gameRoom.id);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -663,30 +699,57 @@ class _VotingResultsScreenState extends State<VotingResultsScreen> {
 
   Future<void> _endGameSession() async {
     try {
+      print('🛑 Host ending game session for room: ${widget.gameRoom.id}');
+
       // Update session stats if not already done
       if (!_resultsProcessed) {
         await _updateSessionStats();
       }
-      
-      // Mark room as finished
+
+      // Properly end the game using the endGame method and update all necessary fields
+      print('📝 Updating room status to finished...');
+      await _roomService.endGame(widget.gameRoom.id);
       await _roomService.updateRoom(widget.gameRoom.id, {
-        'status': RoomStatus.finished.name,
-        'finishedAt': FieldValue.serverTimestamp(),
+        'currentPhase': 'ended',
+        'gameEnded': true,
+        'status': 'finished',
+        'finishedAt': DateTime.now().millisecondsSinceEpoch,
       });
-      
-      // Navigate to main menu
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        '/',
-        (route) => false,
-      );
+
+      // Small delay to ensure status update propagates to all clients
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // Delete the room to clean up backend
+      print('🗑️ Deleting room from backend...');
+      await _roomService.deleteRoom(widget.gameRoom.id);
+      print('✅ Room deleted successfully');
+
+      // Navigate to main menu even if deletion fails
+      if (mounted) {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/',
+          (route) => false,
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error ending session: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      print('❌ Error ending session: $e');
+
+      // Ensure we still navigate even if there was an error
+      if (mounted) {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/',
+          (route) => false,
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Session ended (cleanup error: $e)'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
     }
   }
 
@@ -721,7 +784,7 @@ class _VotingResultsScreenState extends State<VotingResultsScreen> {
         }
       }
       
-      // Update room with new stats
+      // Update room with new stats using realtime database
       await _roomService.updateRoom(widget.gameRoom.id, {
         'sessionWins': currentWins,
         'sessionLosses': currentLosses,

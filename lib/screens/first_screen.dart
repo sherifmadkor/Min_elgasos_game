@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:min_elgasos_game/app_theme.dart';
 import 'package:min_elgasos_game/screens/privacy_policy_screen.dart';
-import 'package:min_elgasos_game/widgets/background_container.dart';
+import 'package:min_elgasos_game/screens/background_container.dart';
 import '../slide_transition.dart';
+import '../l10n/app_localizations.dart';
+import '../widgets/language_switcher.dart';
+import '../services/language_service.dart';
 
 class FirstScreen extends StatefulWidget {
   const FirstScreen({super.key});
@@ -60,16 +63,31 @@ class _FirstScreenState extends State<FirstScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final languageService = LanguageService();
+    
     return BackgroundContainer(
       child: SafeArea(
         bottom: false,
         child: Column(
           children: [
+            // Language switcher at the top
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: const [
+                  LanguageSwitcher(),
+                ],
+              ),
+            ),
             Expanded(
               child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+                child: Directionality(
+                  textDirection: languageService.isArabic ? TextDirection.rtl : TextDirection.ltr,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
                     Padding(
                       padding: const EdgeInsets.only(top: 60.0, bottom: 40.0),
                       child: Image.asset(
@@ -80,20 +98,20 @@ class _FirstScreenState extends State<FirstScreen> {
                       ),
                     ),
                     CoolButton(
-                      text: 'لعب محلي',
+                      text: l10n.playLocal,
                       icon: Icons.people_rounded,
                       onPressed: () => Navigator.pushNamed(context, '/second'),
                     ),
                     const SizedBox(height: 20),
                     // New button for online play
                     CoolButton(
-                      text: 'لعب أونلاين',
+                      text: l10n.playOnline,
                       icon: Icons.wifi_rounded,
-                      onPressed: () => _showOnlineTermsDialog(context),
+                      onPressed: () => Navigator.pushNamed(context, '/go_online'),
                     ),
                     const SizedBox(height: 20),
                     CoolButton(
-                      text: 'تعليمات اللعبة',
+                      text: l10n.gameInstructions,
                       icon: Icons.rule_rounded,
                       onPressed: () => Navigator.pushNamed(context, '/instructions'),
                     ),
@@ -106,7 +124,7 @@ class _FirstScreenState extends State<FirstScreen> {
                         );
                       },
                       child: Text(
-                        'سياسة الخصوصية',
+                        l10n.privacyPolicy,
                         style: AppTheme.textTheme.bodyMedium?.copyWith(
                           color: AppTheme.textSecondaryColor,
                           decoration: TextDecoration.underline,
@@ -117,13 +135,14 @@ class _FirstScreenState extends State<FirstScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: Text(
-                        'اللعبه دي بقت اونلاين عشان نفضل مع بعض طول الوقت❤️',
+                        l10n.onlineMessage,
                         textAlign: TextAlign.center,
                         style: AppTheme.textTheme.bodyMedium,
                       ),
                     ),
                     const SizedBox(height: 20),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -1,0 +1,55 @@
+{
+  "rules": {
+    "rooms": {
+      "$roomId": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        ".validate": "newData.hasChildren(['host', 'hostId', 'maxPlayers', 'gameMinutes', 'gameStarted', 'gameEnded', 'currentPhase', 'createdAt', 'players'])",
+        "players": {
+          "$playerId": {
+            ".read": "auth != null",
+            ".write": "auth != null && (auth.uid == data.child('id').val() || auth.uid == root.child('rooms').child($roomId).child('hostId').val())"
+          }
+        },
+        "votes": {
+          "$voteId": {
+            ".read": "auth != null",
+            ".write": "auth != null"
+          }
+        },
+        "host": {
+          ".validate": "newData.isString()"
+        },
+        "hostId": {
+          ".validate": "newData.isString()"
+        },
+        "maxPlayers": {
+          ".validate": "newData.isNumber() && newData.val() >= 2 && newData.val() <= 20"
+        },
+        "gameMinutes": {
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 60"
+        },
+        "gameStarted": {
+          ".validate": "newData.isBoolean()"
+        },
+        "gameEnded": {
+          ".validate": "newData.isBoolean()"
+        },
+        "currentPhase": {
+          ".validate": "newData.isString()"
+        },
+        "createdAt": {
+          ".validate": "newData.val() == now"
+        }
+      }
+    },
+    "users": {
+      "$userId": {
+        ".read": "auth != null && auth.uid == $userId",
+        ".write": "auth != null && auth.uid == $userId"
+      }
+    },
+    ".read": false,
+    ".write": false
+  }
+}

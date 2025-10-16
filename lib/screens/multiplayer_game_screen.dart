@@ -486,9 +486,9 @@ class _MultiplayerGameScreenState extends State<MultiplayerGameScreen> {
       _gameEnded = true;
       _gameTimer?.cancel();
       
-      final success = await _roomService.endGame(widget.roomId, spiesWin: spiesWin);
+      await _roomService.endGame(widget.roomId, spiesWin: spiesWin);
       
-      if (!success && mounted) {
+      if (false && mounted) { // This block is no longer needed since endGame doesn't return a boolean
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Failed to end game.'),

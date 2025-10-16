@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 
 import 'firebase_options.dart';
@@ -61,6 +60,10 @@ void main() async {
     print('🔄 Initializing app lifecycle service...');
     AppLifecycleService().initialize();
     print('✅ App lifecycle service initialized');
+    
+    print('🔥 Initializing Realtime Room Service...');
+    await RealtimeRoomService().initialize();
+    print('✅ Realtime Room Service initialized');
     
     print('✅ App initialization complete, starting UI...');
     runApp(const MyGameApp());

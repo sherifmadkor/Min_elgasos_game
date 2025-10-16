@@ -127,33 +127,40 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
         }
       }
       
-      final gameSettings = GameSettings(
-        playerCount: _playerCount,
-        spyCount: _spyCount,
-        minutes: _minutes,
-        category: _selectedCategory!,
-      );
+      // Use simplified room creation like casino app
+      if (currentUser == null) {
+        _showSnackBar(
+          LanguageService().isArabic 
+            ? 'يرجى تسجيل الدخول أولاً'
+            : 'Please login first',
+          isError: true,
+        );
+        return;
+      }
 
-      final room = await _roomService.createRoom(
-        roomName: ValidationService.sanitizeInput(roomName),
-        type: _roomType,
-        gameSettings: gameSettings,
+      final roomCode = await _roomService.createRoom(
+        hostName: currentUser.displayName ?? 'Host',
+        hostAvatarId: '🕵️‍♂️', // Default avatar
         maxPlayers: _playerCount,
+        gameMinutes: _minutes,
+        roomName: roomName, // Pass the room name entered by the user
       );
 
-      if (room != null && mounted) {
+      if (mounted) {
+        // Navigate to room lobby with the room code
+        _showSnackBar(
+          LanguageService().isArabic 
+            ? 'تم إنشاء الغرفة بنجاح! رمز الغرفة: $roomCode'
+            : 'Room created successfully! Room code: $roomCode',
+          isError: false,
+        );
+        
+        // Navigate to room lobby screen with roomCode
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) => RoomLobbyScreen(roomId: room.id),
+            builder: (_) => RoomLobbyScreen(roomId: roomCode),
           ),
-        );
-      } else {
-        _showSnackBar(
-          LanguageService().isArabic 
-            ? 'فشل إنشاء الغرفة. تأكد من اتصالك بالإنترنت'
-            : 'Failed to create room. Check your internet connection',
-          isError: true,
         );
       }
     } catch (e) {

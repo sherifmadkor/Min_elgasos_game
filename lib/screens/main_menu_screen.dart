@@ -4,7 +4,7 @@ import 'package:min_elgasos_game/app_theme.dart';
 import 'package:min_elgasos_game/slide_transition.dart';
 import 'package:min_elgasos_game/screens/first_screen.dart'; // The existing local game screen
 import 'package:min_elgasos_game/screens/online_lobby_screen.dart';
-import 'package:min_elgasos_game/widgets/background_container.dart'; // A new screen we will create
+import 'package:min_elgasos_game/screens/background_container.dart'; // A new screen we will create
 
 class MainMenuScreen extends StatelessWidget {
   const MainMenuScreen({super.key});

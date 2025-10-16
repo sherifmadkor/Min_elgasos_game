@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:min_elgasos_game/app_theme.dart';
+import '../l10n/app_localizations.dart';
+import '../services/language_service.dart';
 
 class InstructionsScreen extends StatefulWidget {
   const InstructionsScreen({super.key});
@@ -43,12 +45,18 @@ class _InstructionsScreenState extends State<InstructionsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('قواعد اللعبة'),
-        centerTitle: true,
-      ),
-      body: Container(
+    final l10n = AppLocalizations.of(context)!;
+    final languageService = LanguageService.of(context);
+    final isRtl = languageService.isRtl;
+    
+    return Directionality(
+      textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.gameRules),
+          centerTitle: true,
+        ),
+        body: Container(
         decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
         child: SafeArea(
           child: Column(
@@ -57,33 +65,17 @@ class _InstructionsScreenState extends State<InstructionsScreen> {
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(24.0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                    crossAxisAlignment: isRtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                     children: [
-                      _buildInstructionSection(
-                        '🔸 لعبة اجتماعية لـ 3 لاعبين أو أكثر 🔥\n'
-                            '🔸 الكل يعرف المكان أو الأكلة لاعب الكوره الخ… ماعدا الجاسوس! 👀\n',
-                      ),
+                      _buildInstructionSection(l10n.gameDescription),
                       const SizedBox(height: 24),
-                      _buildHeading('🎯 هدف الجاسوس:', AppTheme.accentColor),
+                      _buildHeading(l10n.spyObjective, AppTheme.accentColor),
                       const SizedBox(height: 8),
-                      _buildInstructionSection(
-                        '- يتظاهر إنه عارف وميتكشفش.\n'
-                            '- يسمع الأسئلة والإجابات.\n'
-                            '- يحاول يعرف المكان أو الأكلة.\n'
-                            '- لكن ❗ ممنوع يقول المكان أو الأكلة إلا بعد انتهاء اللفة.\n'
-                            '- لو قالها صح → الجواسيس يكسبوا.\n'
-                            '- لو غلط:\n'
-                            '  ❌ بيتخصم منه نقطة.\n'
-                            '  ✅ وكل لاعب تاني بياخد نقطة.',
-                      ),
+                      _buildInstructionSection(l10n.spyObjectiveDetails),
                       const SizedBox(height: 24),
-                      _buildHeading('🧠 هدف باقي اللاعبين:', Colors.lightBlueAccent),
+                      _buildHeading(l10n.detectiveObjective, Colors.lightBlueAccent),
                       const SizedBox(height: 8),
-                      _buildInstructionSection(
-                        '- يسألوا بعض أسئلة بنعم أو لا فقط.\n'
-                            '- يحاولوا يكتشفوا مين الجاسوس من إجاباته.\n'
-                            '- بعد انتهاء الجولة، يتناقشوا ويتفقوا ويختاروا مين الجاسوس لو متفقوش اللي قال صح ليه نقطه مع الجاسوس.',
-                      ),
+                      _buildInstructionSection(l10n.detectiveObjectiveDetails),
                     ],
                   ),
                 ),
@@ -98,22 +90,25 @@ class _InstructionsScreenState extends State<InstructionsScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 
   Widget _buildHeading(String text, Color color) {
+    final isRtl = LanguageService.of(context).isRtl;
     return Text(
       text,
       style: AppTheme.textTheme.headlineMedium?.copyWith(color: color, fontSize: 22),
-      textAlign: TextAlign.right,
+      textAlign: isRtl ? TextAlign.right : TextAlign.left,
     );
   }
 
   Widget _buildInstructionSection(String text) {
+    final isRtl = LanguageService.of(context).isRtl;
     return Text(
       text,
       style: AppTheme.textTheme.bodyLarge,
-      textAlign: TextAlign.right,
+      textAlign: isRtl ? TextAlign.right : TextAlign.left,
     );
   }
 }

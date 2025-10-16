@@ -155,22 +155,21 @@ class _FirebaseDebugScreenState extends State<FirebaseDebugScreen> {
           category: 'أماكن',
         );
         
-        final room = await _roomService.createRoom(
-          roomName: 'Debug Test Room',
-          type: RoomType.public,
-          gameSettings: gameSettings,
-          maxPlayers: 6,
+        final roomCode = await _roomService.createRoom(
+          hostName: 'Debug Host',
+          hostAvatarId: '🧪',
+          maxPlayers: 8,
+          gameMinutes: 5,
         );
         
-        if (room != null) {
+        if (roomCode.isNotEmpty) {
           _addLog('Room created successfully!');
-          _addLog('Room ID: ${room.id}');
-          _addLog('Room Code: ${room.roomCode ?? 'N/A (public)'}');
+          _addLog('Room Code: $roomCode');
           
           // Clean up - delete the test room
           await Future.delayed(const Duration(seconds: 2));
           _addLog('Cleaning up test room...');
-          await firestore.collection('gameRooms').doc(room.id).delete();
+          await _roomService.deleteRoom(roomCode);
           _addLog('Test room deleted');
         } else {
           _addLog('Room creation returned null', isError: true);

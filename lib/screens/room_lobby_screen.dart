@@ -10,7 +10,6 @@ import '../services/realtime_room_service.dart';
 import '../services/language_service.dart';
 import '../services/app_lifecycle_service.dart';
 import '../widgets/rank_emblem_png.dart';
-import 'multiplayer_game_screen.dart';
 
 class RoomLobbyScreen extends StatefulWidget {
   final String roomId;
@@ -774,33 +773,10 @@ class _RoomLobbyScreenState extends State<RoomLobbyScreen> {
       }
       
       // Start game automatically with predefined word selection (no dialogs)
-      final success = await _roomService.startGame(widget.roomId);
-      
-      if (success) {
-        // Get the updated room data first
-        final roomDoc = await _roomService.firestore.collection('gameRooms').doc(widget.roomId).get();
-        if (roomDoc.exists) {
-          final updatedRoom = GameRoom.fromFirestore(roomDoc);
-          // Navigate to game session screen
-          Navigator.pushReplacementNamed(
-            context,
-            '/game_session',
-            arguments: {
-              'gameRoom': updatedRoom,
-              'currentUserId': _roomService.auth.currentUser!.uid,
-            },
-          );
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Failed to start game. Make sure all players are ready.'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
+      await _roomService.startGame(widget.roomId);
+
+      // Navigation will be handled automatically by the StreamBuilder
+      // when it detects the status change to 'starting'
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
