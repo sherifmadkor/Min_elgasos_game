@@ -5,7 +5,6 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:min_elgasos_game/app_theme.dart';
 import 'package:min_elgasos_game/screens/instructions_screen.dart';
-import 'package:min_elgasos_game/screens/online_lobby_screen.dart';
 import 'package:min_elgasos_game/slide_transition.dart';
 import 'package:min_elgasos_game/screens/background_container.dart';
 import 'package:min_elgasos_game/models/room_models.dart';
@@ -14,7 +13,6 @@ import 'package:min_elgasos_game/services/realtime_room_service.dart';
 import 'package:min_elgasos_game/widgets/rank_emblem_png.dart';
 import 'package:min_elgasos_game/services/app_lifecycle_service.dart';
 import '../l10n/app_localizations.dart';
-import '../l10n/localizations_extension.dart';
 
 class MultiplayerGameTimerScreen extends StatefulWidget {
   final int minutes;
@@ -234,11 +232,9 @@ class _MultiplayerGameTimerScreenState extends State<MultiplayerGameTimerScreen>
 
   Future<void> _startVotingPhase() async {
     try {
-      // Update Realtime Database room status and clear votes
-      await _roomService.updateRoom(widget.gameRoom.id, {
-        'status': RoomStatus.voting.name,
-        'playerVotes': {}, // Clear votes for new voting round
-      });
+      // Clear votes and update phase to voting
+      await _roomService.resetVotes(widget.gameRoom.id);
+      await _roomService.setGamePhase(widget.gameRoom.id, 'voting');
       
       print('Timer: Started voting phase with Realtime Database');
       
@@ -646,22 +642,14 @@ class _MultiplayerGameTimerScreenState extends State<MultiplayerGameTimerScreen>
       stream: _roomService.getRoomById(widget.gameRoom.id),
       builder: (context, snapshot) {
         final room = snapshot.data ?? widget.gameRoom;
-        
-        // Only process state changes if room state actually changed
-        if (_lastRoomState == null || _hasRoomStateChanged(_lastRoomState!, room)) {
-          _lastRoomState = room;
-          
-          // Handle room state changes for non-host players
-          if (!_isHost && room.timerPaused != null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _syncTimerWithRoom(room);
-            });
-          }
-          
-          // Navigate to voting screen when status changes (with guard)
-          if (room.status == RoomStatus.voting && !_hasNavigatedToVoting) {
+
+        // Check for voting status FIRST, before any other processing
+        // This prevents the screen from building the timer UI before navigating
+        if (room.status == RoomStatus.voting) {
+          if (!_hasNavigatedToVoting) {
             _hasNavigatedToVoting = true; // Set guard to prevent duplicate navigation
-            
+            print('MultiplayerTimer: Detected voting status, navigating...');
+
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (mounted) {
                 Navigator.pushReplacementNamed(
@@ -674,10 +662,32 @@ class _MultiplayerGameTimerScreenState extends State<MultiplayerGameTimerScreen>
                 );
               }
             });
-            return Container(); // Return empty container during navigation
+          }
+          // Always return loading screen when in voting status to prevent any UI flash
+          return BackgroundContainer(
+            child: const Scaffold(
+              backgroundColor: Colors.transparent,
+              body: Center(
+                child: CircularProgressIndicator(
+                  color: AppTheme.accentColor,
+                ),
+              ),
+            ),
+          );
+        }
+
+        // Only process other state changes if room state actually changed
+        if (_lastRoomState == null || _hasRoomStateChanged(_lastRoomState!, room)) {
+          _lastRoomState = room;
+
+          // Handle room state changes for non-host players
+          if (!_isHost && room.timerPaused != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _syncTimerWithRoom(room);
+            });
           }
         }
-        
+
         return _buildTimerScreen(context, room);
       },
     );
@@ -716,9 +726,9 @@ class _MultiplayerGameTimerScreenState extends State<MultiplayerGameTimerScreen>
                       tooltip: AppLocalizations.of(context)!.gameRules,
                     ),
                     IconButton(
-                      icon: const Icon(Icons.refresh_rounded),
-                      onPressed: _startNewGame,
-                      tooltip: AppLocalizations.of(context)!.newGame,
+                      icon: const Icon(Icons.assessment_outlined),
+                      onPressed: _showResultsDialog,
+                      tooltip: AppLocalizations.of(context)!.result,
                     ),
                   ],
                 ),

@@ -7,6 +7,7 @@ import '../l10n/localizations_extension.dart';
 import '../models/room_models.dart';
 import '../services/realtime_room_service.dart';
 import '../services/language_service.dart';
+import '../services/app_lifecycle_service.dart';
 import '../widgets/rank_emblem_png.dart';
 
 class VotingScreen extends StatefulWidget {
@@ -29,6 +30,7 @@ class _VotingScreenState extends State<VotingScreen> {
   bool _isSubmittingVote = false;
   StreamSubscription? _roomSubscription;
   GameRoom? _currentRoom;
+  bool _hasNavigated = false; // Navigation guard
 
   bool get _isHost => widget.currentUserId == widget.gameRoom.hostId;
   
@@ -39,12 +41,14 @@ class _VotingScreenState extends State<VotingScreen> {
   @override
   void initState() {
     super.initState();
+    AppLifecycleService().setCurrentRoom(widget.gameRoom.id);
     _startListeningToRoom();
   }
 
   @override
   void dispose() {
     _roomSubscription?.cancel();
+    AppLifecycleService().setCurrentRoom(null);
     super.dispose();
   }
 
@@ -52,13 +56,22 @@ class _VotingScreenState extends State<VotingScreen> {
     print('VotingScreen: Starting to listen to Realtime Database room');
     _roomSubscription = _roomService.getRoomById(widget.gameRoom.id).listen(
       (room) {
-        print('VotingScreen: Received room update: ${room?.id}');
+        print('VotingScreen: Received room update: ${room?.id}, status: ${room?.status}');
         if (mounted && room != null) {
           setState(() {
             _currentRoom = room;
             // Update selected player if we have voted
             if (room.playerVotes != null && room.playerVotes!.containsKey(widget.currentUserId)) {
               _selectedPlayerId = room.playerVotes![widget.currentUserId];
+            }
+          });
+        } else if (mounted && room == null && !_hasNavigated) {
+          // Room was deleted, navigate home (only if we haven't already navigated to results)
+          print('VotingScreen: Room was deleted, navigating home');
+          _hasNavigated = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
             }
           });
         }
@@ -92,19 +105,29 @@ class _VotingScreenState extends State<VotingScreen> {
               final votes = room.playerVotes ?? {};
               final hasVoted = votes.containsKey(widget.currentUserId);
               
-              if (room.status == RoomStatus.resultsShowing) {
-                // Navigate to results screen
+              if (room.status == RoomStatus.resultsShowing && !_hasNavigated) {
+                // Navigate to results screen (with guard to prevent duplicate navigation)
+                _hasNavigated = true;
+                print('VotingScreen: Navigating to results screen');
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Navigator.pushReplacementNamed(
-                    context,
-                    '/voting_results',
-                    arguments: {
-                      'gameRoom': room,
-                      'currentUserId': widget.currentUserId,
-                    },
-                  );
+                  if (mounted) {
+                    Navigator.pushReplacementNamed(
+                      context,
+                      '/voting_results',
+                      arguments: {
+                        'gameRoom': room,
+                        'currentUserId': widget.currentUserId,
+                      },
+                    );
+                  }
                 });
-                return const Center(child: CircularProgressIndicator());
+                return const Scaffold(
+                  body: Center(
+                    child: CircularProgressIndicator(
+                      color: AppTheme.accentColor,
+                    ),
+                  ),
+                );
               }
 
               final totalVotes = votes.length; // Count all votes in Realtime DB
@@ -625,34 +648,21 @@ class _VotingScreenState extends State<VotingScreen> {
       print('VotingScreen: Room ID: ${widget.gameRoom.id}');
       
       // Submit vote using Realtime Database
-      final success = await _roomService.submitVote(
-        widget.gameRoom.id,
-        widget.currentUserId,
-        _selectedPlayerId!,
+      await _roomService.submitVote(
+        roomCode: widget.gameRoom.id,
+        voterName: widget.currentUserId,
+        votedForName: _selectedPlayerId!,
       );
-      
-      if (success) {
-        print('=== REALTIME VOTE SUBMISSION SUCCESS ===');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Vote submitted successfully!'),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
-      } else {
-        print('VotingScreen: Vote already submitted or failed');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('You have already voted!'),
-              backgroundColor: Colors.orange,
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
+
+      print('=== REALTIME VOTE SUBMISSION SUCCESS ===');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Vote submitted successfully!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
     } catch (e) {
       print('VotingScreen: Vote submission error: $e');
@@ -676,9 +686,7 @@ class _VotingScreenState extends State<VotingScreen> {
 
   Future<void> _showResults() async {
     try {
-      await _roomService.updateRoom(widget.gameRoom.id, {
-        'status': RoomStatus.resultsShowing.name,
-      });
+      await _roomService.setGamePhase(widget.gameRoom.id, 'results');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

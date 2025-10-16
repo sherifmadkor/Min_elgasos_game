@@ -110,8 +110,9 @@ class _RoomBrowserScreenState extends State<RoomBrowserScreen>
         print('Room browser - Connection state: ${snapshot.connectionState}');
         print('Room browser - Has data: ${snapshot.hasData}');
         print('Room browser - Data length: ${snapshot.data?.length ?? 0}');
-        
-        if (snapshot.connectionState == ConnectionState.waiting) {
+
+        // Only show loading on first load (waiting + no data yet)
+        if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
           return const Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -123,7 +124,7 @@ class _RoomBrowserScreenState extends State<RoomBrowserScreen>
             ),
           );
         }
-        
+
         // Handle errors
         if (snapshot.hasError) {
           return Center(
@@ -518,15 +519,19 @@ class _RoomBrowserScreenState extends State<RoomBrowserScreen>
       ),
     );
     
-    final joinedRoomId = await _roomService.joinRoom(roomId);
+    final success = await _roomService.joinRoom(
+      roomCode: roomId,
+      playerName: 'Player', // TODO: Get actual player name
+      avatarId: '🕵️‍♂️',
+    );
     
     if (mounted) Navigator.pop(context); // Close loading dialog
     
-    if (joinedRoomId != null && mounted) {
+    if (success && mounted) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => RoomLobbyScreen(roomId: joinedRoomId),
+          builder: (_) => RoomLobbyScreen(roomId: roomId),
         ),
       );
     } else if (mounted) {
@@ -564,16 +569,20 @@ class _RoomBrowserScreenState extends State<RoomBrowserScreen>
     setState(() => _isJoiningByCode = true);
 
     try {
-      final joinedRoomId = await _roomService.joinRoom(code, isRoomCode: true);
+      final success = await _roomService.joinRoom(
+        roomCode: code,
+        playerName: 'Player', // TODO: Get actual player name
+        avatarId: '🕵️‍♂️',
+      );
       
-      if (joinedRoomId != null && mounted) {
+      if (success && mounted) {
         _roomCodeController.clear();
         
         // Navigate directly to the room
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => RoomLobbyScreen(roomId: joinedRoomId),
+            builder: (_) => RoomLobbyScreen(roomId: code),
           ),
         );
       } else if (mounted) {
